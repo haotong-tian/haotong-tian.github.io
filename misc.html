@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miscellaneous — Haotong Tian</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ── Skills grid ───────────────────────── */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .skill-group h3 {
+            font-family: var(--serif);
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+        }
+
+        .skill-tags span {
+            font-family: var(--mono);
+            font-size: 0.73rem;
+            padding: 0.3rem 0.7rem;
+            background: var(--code-bg);
+            border-radius: 3px;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .skill-tags span:hover {
+            color: var(--link);
+            background: var(--bg-alt);
+        }
+
+        /* ── Interest cards ────────────────────── */
+        .interests-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .interest-card {
+            padding: 2rem;
+            border: 1px solid var(--rule);
+            border-radius: 6px;
+            transition: all 0.25s;
+        }
+
+        .interest-card:hover {
+            border-color: var(--link);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(26, 23, 20, 0.06);
+        }
+
+        .interest-card .card-icon {
+            font-size: 1.6rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .interest-card h3 {
+            font-family: var(--serif);
+            font-size: 1.15rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .interest-card p {
+            color: var(--text-muted);
+            font-weight: 300;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* ── Fun facts ─────────────────────────── */
+        .facts-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .facts-list li {
+            padding: 1.2rem 0;
+            border-bottom: 1px solid var(--rule);
+            display: flex;
+            gap: 1.2rem;
+            align-items: baseline;
+            color: var(--text-muted);
+            font-weight: 300;
+            font-size: 0.95rem;
+        }
+
+        .facts-list li:last-child {
+            border-bottom: none;
+        }
+
+        .facts-list .fact-num {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 680px) {
+            .skills-grid { grid-template-columns: 1fr; }
+            .interests-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="work.html">Work</a></li>
+            <li><a href="education.html">Education</a></li>
+            <li><a href="misc.html" class="active">Misc</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <header class="page-header">
+            <div class="container">
+                <h1>The rest of it.</h1>
+                <p style="font-size: 1.15rem; font-weight: 300; color: var(--text-muted); margin-top: 1rem;">Coming soon.</p>
+            </div>
+        </header>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Haotong Tian</p>
+        </div>
+    </footer>
+
+    <script>
+        const nav = document.querySelector('nav');
+        window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 20));
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+            });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+
+</body>
+</html>

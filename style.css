@@ -1,0 +1,244 @@
+/* ── Variables ──────────────────────────── */
+:root {
+    --bg: #FAFAF7;
+    --bg-alt: #F0EDE8;
+    --text: #0D1B3E;
+    --text-muted: #5A6578;
+    --accent: #1D6A3A;
+    --accent-hover: #155A2E;
+    --link: #0D1B3E;
+    --link-hover: #1a2d5a;
+    --rule: #D5D0C8;
+    --code-bg: #EDEAE4;
+    --display: 'Newsreader', Georgia, serif;
+    --serif: 'Lora', Georgia, serif;
+    --sans: 'IBM Plex Sans', -apple-system, sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+}
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 17px;
+}
+
+body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+::selection {
+    background: var(--link);
+    color: #fff;
+}
+
+a {
+    color: var(--link);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: var(--link-hover);
+}
+
+/* ── Layout ────────────────────────────── */
+
+.container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    width: 100%;
+}
+
+main {
+    flex: 1;
+}
+
+/* ── Nav ───────────────────────────────── */
+
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 1.2rem 2rem;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    background: rgba(250, 250, 247, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s;
+}
+
+nav.scrolled {
+    border-bottom-color: var(--rule);
+}
+
+nav .logo {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    color: var(--text);
+    letter-spacing: -0.01em;
+}
+
+nav .logo a {
+    color: var(--text);
+}
+
+nav .logo a:hover {
+    color: var(--accent);
+}
+
+nav .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+}
+
+nav .nav-links a {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+}
+
+nav .nav-links a:hover,
+nav .nav-links a.active {
+    color: var(--text);
+}
+
+/* ── Page Header ───────────────────────── */
+
+.page-header {
+    padding: 9rem 0 0;
+}
+
+.page-header h1 {
+    font-family: var(--display);
+    font-size: clamp(2.4rem, 5.5vw, 3.6rem);
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    margin-bottom: 1rem;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.8s ease forwards;
+}
+
+.page-header h1 em {
+    font-style: italic;
+    color: var(--link);
+}
+
+.page-header .subtitle {
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    max-width: 560px;
+    line-height: 1.65;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.8s ease 0.15s forwards;
+}
+
+/* ── Section ───────────────────────────── */
+
+section {
+    padding: 1.5rem 0;
+    position: relative;
+}
+
+section + section {
+    border-top: 1px solid var(--rule);
+}
+
+.section-label {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+}
+
+/* ── Footer ────────────────────────────── */
+
+footer {
+    border-top: 1px solid var(--rule);
+    padding: 2.5rem 0;
+    text-align: center;
+}
+
+footer p {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 300;
+}
+
+footer a {
+    color: var(--text-muted);
+}
+
+footer a:hover {
+    color: var(--link);
+}
+
+/* ── Animations ────────────────────────── */
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ── Responsive ────────────────────────── */
+
+@media (max-width: 680px) {
+    html { font-size: 16px; }
+    .container { padding: 0 1.4rem; }
+    nav .nav-links { gap: 1.2rem; }
+    .page-header { padding: 7rem 0 3rem; }
+}

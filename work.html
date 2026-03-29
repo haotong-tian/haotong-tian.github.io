@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work — Haotong Tian</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ── Experience items ──────────────────── */
+        .exp-item {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 2rem;
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--rule);
+        }
+
+        .exp-item:last-child {
+            border-bottom: none;
+        }
+
+        .exp-date {
+            font-family: var(--mono);
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            padding-top: 0.25rem;
+            line-height: 1.5;
+        }
+
+        .exp-logo {
+            display: block;
+            width: 144px;
+            height: 144px;
+            border-radius: 6px;
+            object-fit: contain;
+            margin-top: 0.8rem;
+        }
+
+        .exp-content h3 {
+            font-family: var(--serif);
+            font-size: 1.3rem;
+            margin-bottom: 0.2rem;
+            letter-spacing: -0.01em;
+        }
+
+        .exp-content .exp-role {
+            font-size: 0.88rem;
+            color: var(--accent);
+            font-weight: 500;
+            margin-bottom: 0.7rem;
+        }
+
+        .exp-content p,
+        .exp-content li {
+            color: var(--text-muted);
+            font-weight: 300;
+            font-size: 0.92rem;
+            line-height: 1.7;
+        }
+
+        .exp-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .exp-content ul li {
+            padding-left: 1rem;
+            position: relative;
+            margin-bottom: 0.4rem;
+        }
+
+        .exp-content ul li::before {
+            content: '—';
+            position: absolute;
+            left: 0;
+            color: var(--rule);
+        }
+
+        .exp-content ul ul {
+            margin-top: 0.3rem;
+            margin-left: 0.5rem;
+        }
+
+        .exp-content ul ul li::before {
+            content: '·';
+        }
+
+        .sub-role {
+            margin-top: 1rem;
+            margin-left: 0.8rem;
+            padding-left: 1rem;
+            border-left: 2px solid var(--rule);
+        }
+
+        .sub-role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.4rem;
+            gap: 1rem;
+        }
+
+        .sub-role-title {
+            font-weight: 500;
+            font-size: 0.92rem;
+            color: var(--text);
+        }
+
+        .sub-role-date {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .exp-content strong {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .exp-content a {
+            color: var(--accent);
+        }
+
+        /* Education specifics */
+        .edu-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.8rem;
+        }
+
+        .edu-details span {
+            font-family: var(--mono);
+            font-size: 0.73rem;
+            padding: 0.3rem 0.7rem;
+            background: var(--code-bg);
+            border-radius: 3px;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 680px) {
+            .exp-item {
+                grid-template-columns: 1fr;
+                gap: 0.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="work.html" class="active">Work</a></li>
+            <li><a href="education.html">Education</a></li>
+            <li><a href="misc.html">Misc</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <header class="page-header">
+            <div class="container">
+                <h1>Work &amp; Career</h1>
+            </div>
+        </header>
+
+        <!-- Professional -->
+        <section>
+            <div class="container">
+                <div class="exp-item reveal">
+                    <div class="exp-date">Jun 2024 —<br>Present
+                        <img src="assets/logos/bcg.png" alt="BCG" class="exp-logo" style="width:180px;height:180px">
+                    </div>
+                    <div class="exp-content">
+                        <h3>Boston Consulting Group</h3>
+                        <div class="exp-role">San Francisco</div>
+
+                        <div class="sub-role">
+                            <div class="sub-role-header">
+                                <span class="sub-role-title">Associate, GenAI Forward Deployment</span>
+                                <span class="sub-role-date">Oct 2025 — Present</span>
+                            </div>
+                            <ul>
+                                <li>Building agentic AI solutions embedded with consulting case teams</li>
+                                <li>Developing and maintaining BCG's AI toolkit — Claude Agent Skills, MCP servers, and internal tools</li>
+                                <li>Shipped cost diagnostics, procurement analysis, and workflow automation agents</li>
+                            </ul>
+                        </div>
+
+                        <div class="sub-role">
+                            <div class="sub-role-header">
+                                <span class="sub-role-title">Associate, Traditional Consulting</span>
+                                <span class="sub-role-date">Jun 2024, Aug 2025 — Present</span>
+                            </div>
+                            <ul>
+                                <li>Tech M&amp;A diligence, AI upskilling strategy, and internal AI transformation initiatives</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="exp-item reveal">
+                    <div class="exp-date">Mar 2025 —<br>Aug 2025
+                        <img src="assets/logos/hongshan.png" alt="HongShan" class="exp-logo">
+                    </div>
+                    <div class="exp-content">
+                        <h3>HongShan Group</h3>
+                        <div class="exp-role">Venture Fellow &nbsp;·&nbsp; Beijing &nbsp;·&nbsp; f.k.a. Sequoia Capital China</div>
+                        <ul>
+                            <li>Core team member of <a href="https://www.xbench.org/" target="_blank">xbench</a>, an open-source <a href="https://arxiv.org/abs/2506.13651" target="_blank">AI Agents evaluation benchmark</a></li>
+                            <li>Venture analysis focused on AI Agents, cloud infrastructure, and AI search</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="exp-item reveal">
+                    <div class="exp-date">Jun 2023 —<br>Aug 2023
+                        <img src="assets/logos/amazon.png" alt="Amazon" class="exp-logo">
+                    </div>
+                    <div class="exp-content">
+                        <h3>Amazon</h3>
+                        <div class="exp-role">Software Development Engineer Intern &nbsp;·&nbsp; Sunnyvale</div>
+                        <ul>
+                            <li>Built RAG workflow for Alexa voice query optimization using LLM fine-tuning</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="exp-item reveal">
+                    <div class="exp-date">May 2021 —<br>Dec 2022
+                        <img src="assets/logos/jd.png" alt="JD.com" class="exp-logo">
+                    </div>
+                    <div class="exp-content">
+                        <h3>JD.com Group</h3>
+                        <div class="exp-role">Machine Learning Research Fellow &nbsp;·&nbsp; Beijing</div>
+                        <ul>
+                            <li>Co-authored <em>Trustworthy Artificial Intelligence</em> <br></li>
+                            <li>Research focus on Machine Learning Theory, especially Differential Privacy </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Haotong Tian</p>
+        </div>
+    </footer>
+
+    <script>
+        const nav = document.querySelector('nav');
+        window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 20));
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+            });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+
+</body>
+</html>

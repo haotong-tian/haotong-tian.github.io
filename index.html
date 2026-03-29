@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haotong Tian</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .hero {
+            padding: 12rem 0 6rem;
+            border-bottom: 1px solid var(--rule);
+        }
+
+        .hero .container {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+        }
+
+        .hero-text {
+            flex: 1;
+        }
+
+        .hero-avatar {
+            flex-shrink: 0;
+            width: 280px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(13, 27, 62, 0.1);
+            opacity: 0;
+            transform: translateY(24px);
+            animation: fadeUp 0.8s ease 0.2s forwards;
+        }
+
+        .hero-avatar img {
+            width: 100%;
+            display: block;
+            margin-top: -15%;
+            filter: saturate(0.55) sepia(0.1);
+            transition: filter 0.4s;
+        }
+
+        .hero-avatar:hover img {
+            filter: saturate(1) sepia(0);
+        }
+
+        .hero h1 {
+            font-family: var(--display);
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.8rem;
+            opacity: 0;
+            transform: translateY(24px);
+            animation: fadeUp 0.8s ease forwards;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            color: var(--link);
+        }
+
+        .hero .intro {
+            font-size: 1.15rem;
+            font-weight: 300;
+            color: var(--text-muted);
+            max-width: 760px;
+            line-height: 1.7;
+            opacity: 0;
+            transform: translateY(16px);
+            animation: fadeUp 0.8s ease 0.15s forwards;
+        }
+
+        .hero .intro strong {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .intro-list {
+            list-style: none;
+            padding: 0;
+            margin: 1.2rem 0 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 1.05rem;
+            font-weight: 300;
+            color: var(--text-muted);
+            opacity: 0;
+            transform: translateY(16px);
+            animation: fadeUp 0.8s ease 0.15s forwards;
+        }
+
+        .hero-links {
+            margin-top: 2.5rem;
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            opacity: 0;
+            transform: translateY(16px);
+            animation: fadeUp 0.8s ease 0.3s forwards;
+        }
+
+        .hero-links a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            padding: 0.5rem 1.1rem;
+            border: 1px solid var(--rule);
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .hero-links a:hover {
+            border-color: var(--link);
+            color: var(--link);
+        }
+
+        .hero-links a svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        /* Snapshot cards */
+        .snapshot {
+            padding: 5rem 0;
+        }
+
+        .snapshot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .snapshot-card {
+            padding: 2rem;
+            border: 1px solid var(--rule);
+            border-radius: 6px;
+            transition: all 0.25s;
+        }
+
+        .snapshot-card:hover {
+            border-color: var(--link);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(26, 23, 20, 0.06);
+        }
+
+        .snapshot-card .card-label {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            margin-bottom: 0.8rem;
+        }
+
+        .snapshot-card h3 {
+            font-family: var(--serif);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .snapshot-card h3 a {
+            color: var(--text);
+        }
+
+        .snapshot-card h3 a:hover {
+            color: var(--accent);
+        }
+
+        .snapshot-card p {
+            color: var(--text-muted);
+            font-weight: 300;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 680px) {
+            .hero { padding: 9rem 0 4rem; }
+            .hero .container { flex-direction: column-reverse; gap: 2rem; }
+            .hero-avatar { width: 200px; }
+            .snapshot-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="work.html">Work</a></li>
+            <li><a href="education.html">Education</a></li>
+            <li><a href="misc.html">Misc</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <header class="hero">
+            <div class="container">
+                <div class="hero-text">
+                    <h1>Haotong Tian</h1>
+                    <p class="intro">
+                        <strong>Builder at the intersection of AI, technology, and strategy.</strong>
+                    </p>
+                    <ul class="intro-list">
+                        <li>Associate at BCG, core member of the firm's AI Forward Deployment team.</li>
+                        <li>Penn Engineering &amp; Wharton alum.</li>
+                        <li>Based in the San Francisco Bay Area.</li>
+                    </ul>
+                    <div class="hero-links">
+                        <a href="https://www.linkedin.com/in/haotong-tian/" target="_blank">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                            LinkedIn
+                        </a>
+                        <a href="mailto:victor.ht.tian@gmail.com">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                            Email
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-avatar">
+                    <img src="assets/avatar.jpg" alt="Haotong Tian">
+                </div>
+            </div>
+        </header>
+
+        <section class="snapshot">
+            <div class="container">
+                <div class="section-label reveal">At a glance</div>
+                <div class="snapshot-grid">
+                    <div class="snapshot-card reveal">
+                        <div class="card-label">Now</div>
+                        <h3><a href="work.html">BCG &mdash; AI Forward Deployment</a></h3>
+                        <p>Building agentic AI solutions embedded with consulting case teams.</p>
+                    </div>
+                    <div class="snapshot-card reveal">
+                        <div class="card-label">Previously</div>
+                        <h3><a href="work.html">HongShan &middot; Amazon &middot; JD.com</a></h3>
+                        <p>Venture capital, software engineering, and ML research.</p>
+                    </div>
+                    <div class="snapshot-card reveal">
+                        <div class="card-label">Education</div>
+                        <h3><a href="education.html">Penn Engineering &amp; Wharton</a></h3>
+                        <p>Computer Science, Finance, and Robotics.</p>
+                    </div>
+                    <div class="snapshot-card reveal">
+                        <div class="card-label">Life</div>
+                        <h3><a href="misc.html">Beyond Work</a></h3>
+                        <p>I play guitar, cook Chinese meals, and explore the outdoors.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Haotong Tian</p>
+        </div>
+    </footer>
+
+    <script>
+        const nav = document.querySelector('nav');
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('scrolled', window.scrollY > 20);
+        });
+        const reveals = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+        reveals.forEach(el => observer.observe(el));
+    </script>
+
+</body>
+</html>

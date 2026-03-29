@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Education — Haotong Tian</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .exp-item {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .exp-item:last-child {
+            border-bottom: none;
+        }
+
+        .exp-date {
+            font-family: var(--mono);
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            padding-top: 0.25rem;
+            line-height: 1.5;
+        }
+
+        .exp-logo {
+            display: block;
+            width: 96px;
+            height: 96px;
+            border-radius: 6px;
+            object-fit: contain;
+            margin-top: 0.8rem;
+        }
+
+        .exp-content h3 {
+            font-family: var(--serif);
+            font-size: 1.3rem;
+            margin-bottom: 0.2rem;
+            letter-spacing: -0.01em;
+        }
+
+        .exp-content .exp-role {
+            font-size: 0.88rem;
+            color: var(--accent);
+            font-weight: 500;
+            margin-bottom: 0.7rem;
+        }
+
+        .exp-content p,
+        .exp-content li {
+            color: var(--text-muted);
+            font-weight: 300;
+            font-size: 0.92rem;
+            line-height: 1.7;
+        }
+
+        .exp-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .exp-content ul li {
+            padding-left: 1rem;
+            position: relative;
+            margin-bottom: 0.4rem;
+        }
+
+        .exp-content ul li::before {
+            content: '—';
+            position: absolute;
+            left: 0;
+            color: var(--rule);
+        }
+
+        .exp-content strong {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .edu-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.8rem;
+        }
+
+        .edu-details span {
+            font-family: var(--mono);
+            font-size: 0.73rem;
+            padding: 0.3rem 0.7rem;
+            background: var(--code-bg);
+            border-radius: 3px;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 680px) {
+            .exp-item {
+                grid-template-columns: 1fr;
+                gap: 0.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="work.html">Work</a></li>
+            <li><a href="education.html" class="active">Education</a></li>
+            <li><a href="misc.html">Misc</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <header class="page-header">
+            <div class="container">
+                <h1>Education</h1>
+            </div>
+        </header>
+
+        <section>
+            <div class="container">
+                <div class="exp-item reveal">
+                    <div class="exp-date">2020 — 2025
+                        <img src="assets/logos/upenn.png" alt="UPenn" class="exp-logo" style="width:144px;height:144px">
+                    </div>
+                    <div class="exp-content">
+                        <h3>University of Pennsylvania</h3>
+                        <div class="exp-role">School of Engineering &amp; Wharton School of Business</div>
+                        <ul>
+                            <li><strong>B.S.E.</strong> Computer Science </li>
+                            <li><strong>B.Ec.</strong> Finance</li>
+                            <li><strong>M.S.E.</strong> Robotics, Penn GRASP Lab</li>
+                            <li><strong>Honors:</strong> Summa Cum Laude</li>
+                        </ul>
+                        <ul style="margin-top: 1.2rem;">
+                            <li><strong>Teaching Assistant</strong> — CIS-6200 Advanced ML, CIS-3200 Algorithms, ENM-375 Biostatistics</li>
+                            <li><strong>Wharton China Summit, President</strong> — organized 5 conferences w. 140k+ audiences</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="exp-item reveal">
+                    <div class="exp-date">2017 — 2020
+                        <img src="assets/logos/sdsz.png" alt="BNU Experimental HS" class="exp-logo">
+                    </div>
+                    <div class="exp-content">
+                        <h3>The Experimental High School Attached to Beijing Normal University</h3>
+                        <div class="exp-role">High School Diploma &nbsp;·&nbsp; Beijing</div>
+                    </div>
+                </div>
+
+                <div class="exp-item reveal">
+                    <div class="exp-date">2013 — 2017
+                        <img src="assets/logos/tsinghua-hs.png" alt="Tsinghua HS" class="exp-logo">
+                    </div>
+                    <div class="exp-content">
+                        <h3>Tsinghua University High School</h3>
+                        <div class="exp-role">High School Diploma &nbsp;·&nbsp; Beijing</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Haotong Tian</p>
+        </div>
+    </footer>
+
+    <script>
+        const nav = document.querySelector('nav');
+        window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 20));
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+            });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+
+</body>
+</html>
