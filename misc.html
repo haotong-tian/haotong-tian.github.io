@@ -9,151 +9,67 @@
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* ── Flight map ───────────────────────── */
-        .flight-map-section {
-            padding-bottom: 3rem;
+        .hub-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            padding: 4rem 0;
         }
 
-        .flight-map-wrap {
+        .hub-card {
+            display: block;
+            padding: 2.5rem 2rem;
             border: 1px solid var(--rule);
             border-radius: 8px;
-            overflow: hidden;
-            margin-top: 1.5rem;
+            transition: all 0.25s;
+            text-decoration: none;
+            color: var(--text);
             position: relative;
-            background: #e8e4dd;
+            overflow: hidden;
         }
 
-        #flight-map {
-            width: 100%;
+        .hub-card:hover {
+            border-color: var(--text);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(13, 27, 62, 0.06);
+            color: var(--text);
+        }
+
+        .hub-card .card-icon {
+            font-size: 2rem;
+            margin-bottom: 1.2rem;
             display: block;
         }
 
-        #flight-map {
-            cursor: grab;
-        }
-
-        #flight-map:active {
-            cursor: grabbing;
-        }
-
-        #flight-map .land {
-            fill: #d4d0c8;
-            stroke: #bbb6ab;
-            stroke-width: 0.5;
-        }
-
-        #flight-map .border {
-            fill: none;
-            stroke: #bbb6ab;
-            stroke-width: 0.3;
-        }
-
-        #flight-map .graticule {
-            fill: none;
-            stroke: #ccc8c0;
-            stroke-width: 0.3;
-            stroke-dasharray: 2,2;
-        }
-
-        #flight-map .flight-arc {
-            fill: none;
-            stroke: var(--text);
-        }
-
-        #flight-map .airport-dot {
-            fill: var(--accent);
-            stroke: #fff;
-            stroke-width: 1.5;
-            cursor: pointer;
-        }
-
-        /* ── Tooltip ──────────────────────────── */
-        .map-tooltip {
-            position: absolute;
-            pointer-events: none;
-            font-family: var(--mono);
-            font-size: 0.72rem;
-            padding: 5px 9px;
-            background: var(--text);
-            color: var(--bg);
-            border-radius: 3px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.15s;
-            z-index: 10;
-        }
-
-        /* ── Stats bar ────────────────────────── */
-        .flight-stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1px;
-            background: var(--rule);
-            border-top: 1px solid var(--rule);
-        }
-
-        .flight-stat {
-            background: var(--bg);
-            padding: 1.2rem 1rem;
-            text-align: center;
-        }
-
-        .flight-stat .stat-value {
+        .hub-card h2 {
             font-family: var(--display);
-            font-size: 1.6rem;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .hub-card p {
+            color: var(--text-muted);
+            font-weight: 300;
+            font-size: 0.92rem;
+            line-height: 1.6;
+            margin-bottom: 1.2rem;
+        }
+
+        .hub-card .card-arrow {
+            font-family: var(--mono);
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            transition: color 0.2s, transform 0.2s;
+            display: inline-block;
+        }
+
+        .hub-card:hover .card-arrow {
             color: var(--text);
-            line-height: 1.2;
-        }
-
-        .flight-stat .stat-label {
-            font-family: var(--mono);
-            font-size: 0.65rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-top: 0.3rem;
-        }
-
-        /* ── Filter toggle ─────────────────────── */
-        .flight-filter {
-            display: flex;
-            gap: 0;
-            margin-top: 1.5rem;
-            border: 1px solid var(--rule);
-            border-radius: 5px;
-            overflow: hidden;
-            width: fit-content;
-        }
-
-        .flight-filter button {
-            font-family: var(--mono);
-            font-size: 0.72rem;
-            letter-spacing: 0.04em;
-            padding: 0.5rem 1.2rem;
-            border: none;
-            background: var(--bg);
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .flight-filter button + button {
-            border-left: 1px solid var(--rule);
-        }
-
-        .flight-filter button:hover {
-            background: var(--bg-alt);
-        }
-
-        .flight-filter button.active {
-            background: var(--text);
-            color: var(--bg);
+            transform: translateX(4px);
         }
 
         @media (max-width: 680px) {
-            .flight-stats { grid-template-columns: repeat(2, 1fr); }
-            .flight-stat .stat-value { font-size: 1.3rem; }
+            .hub-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -164,7 +80,12 @@
             <li><a href="index.html">Home</a></li>
             <li><a href="work.html">Work</a></li>
             <li><a href="education.html">Education</a></li>
-            <li><a href="misc.html" class="active">Misc</a></li>
+            <li><a href="misc.html" class="active">Misc</a>
+                <ul class="dropdown-menu">
+                    <li><a href="releases.html">Releases</a></li>
+                    <li><a href="flight-log.html">Flight Log</a></li>
+                </ul>
+            </li>
             <li><a href="contact.html">Contact</a></li>
         </ul>
     </nav>
@@ -177,261 +98,40 @@
             </div>
         </header>
 
-        <section class="flight-map-section">
-            <div class="container">
-                <div class="section-label reveal">Flight Log</div>
+        <div class="container">
+            <div class="hub-grid">
+                <a href="releases.html" class="hub-card reveal">
+                    <span class="card-icon">&#9998;</span>
+                    <h2>Releases</h2>
+                    <p>Thoughts and updates.</p>
+                    <span class="card-arrow">&rarr; Read posts</span>
+                </a>
 
-                <div class="flight-filter reveal" id="flight-filter">
-                    <button class="active" data-filter="since-aug-2025">Since Aug 2025</button>
-                    <button data-filter="2026">2026</button>
-                </div>
-
-                <div class="flight-map-wrap reveal">
-                    <div id="flight-map-container" style="position:relative;">
-                        <svg id="flight-map"></svg>
-                        <div class="map-tooltip" id="map-tooltip"></div>
-                    </div>
-                    <div class="flight-stats" id="flight-stats"></div>
-                </div>
+                <a href="flight-log.html" class="hub-card reveal">
+                    <span class="card-icon">&#9992;</span>
+                    <h2>Flight Log</h2>
+                    <p>Where the miles take me.</p>
+                    <span class="card-arrow">&rarr; View map</span>
+                </a>
             </div>
-        </section>
+        </div>
     </main>
 
     <footer>
         <div class="container">
-            <p>&copy; 2026 Haotong Tian</p>
+            <p>&copy; 2026 Haotong Tian &nbsp;&middot;&nbsp; <a href="mailto:victor.ht.tian@gmail.com">victor.ht.tian@gmail.com</a></p>
         </div>
     </footer>
 
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://unpkg.com/topojson-client@3"></script>
-    <script src="flights.js"></script>
     <script>
-        // ── Nav scroll & reveal ──────────────────
         const nav = document.querySelector('nav');
         window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 20));
-        const obs = new IntersectionObserver((entries) => {
-            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+            });
         }, { threshold: 0.15 });
-        document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-
-        // ── Map setup ────────────────────────────
-        const container = document.getElementById('flight-map-container');
-        const svg = d3.select('#flight-map');
-        const tooltip = document.getElementById('map-tooltip');
-
-        const width = container.clientWidth;
-        const height = Math.min(520, width * 0.52);
-
-        svg.attr('width', width).attr('height', height);
-
-        // Pacific-centered projection
-        const projection = d3.geoNaturalEarth1()
-            .rotate([-190, 0])
-            .fitSize([width, height], { type: "Sphere" });
-
-        const path = d3.geoPath(projection);
-
-        // Zoomable group — everything drawn goes inside this
-        const g = svg.append('g');
-
-        // Background
-        g.append('path')
-            .datum({ type: "Sphere" })
-            .attr('d', path)
-            .attr('fill', '#e8e4dd')
-            .attr('stroke', 'none');
-
-        // Graticule
-        g.append('path')
-            .datum(d3.geoGraticule()())
-            .attr('d', path)
-            .attr('class', 'graticule');
-
-        // Groups for layering
-        const landGroup = g.append('g');
-        const arcGroup = g.append('g');
-        const dotGroup = g.append('g');
-
-        // ── Zoom behavior ────────────────────────
-        const zoom = d3.zoom()
-            .scaleExtent([1, 8])
-            .on('zoom', (event) => {
-                g.attr('transform', event.transform);
-                // Scale down strokes so they don't get fat on zoom
-                g.selectAll('.flight-arc')
-                    .attr('stroke-width', function() {
-                        return +this.dataset.baseWidth / event.transform.k;
-                    });
-                g.selectAll('.airport-dot')
-                    .attr('r', function() {
-                        return +this.dataset.baseR / event.transform.k;
-                    })
-                    .attr('stroke-width', 1.5 / event.transform.k);
-                g.selectAll('.land').attr('stroke-width', 0.5 / event.transform.k);
-                g.selectAll('.border').attr('stroke-width', 0.3 / event.transform.k);
-                g.selectAll('.graticule').attr('stroke-width', 0.3 / event.transform.k);
-            });
-
-        svg.call(zoom);
-
-        // Default zoom: ~1.8x, shifted to show East Asia + US nicely
-        const initialK = 1.8;
-        const initialX = width * (1 - initialK) * 0.52;
-        const initialY = height * (1 - initialK) * 0.05;
-        const initialTransform = d3.zoomIdentity.translate(initialX, initialY).scale(initialK);
-        svg.call(zoom.transform, initialTransform);
-
-        // ── Load world data ──────────────────────
-        d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(world => {
-            const land = topojson.feature(world, world.objects.land);
-            const borders = topojson.mesh(world, world.objects.countries, (a, b) => a !== b);
-
-            landGroup.append('path')
-                .datum(land)
-                .attr('d', path)
-                .attr('class', 'land');
-
-            landGroup.append('path')
-                .datum(borders)
-                .attr('d', path)
-                .attr('class', 'border');
-
-            // Render after map is loaded
-            renderFlights('since-aug-2025');
-        });
-
-        // ── Haversine distance (km) ──────────────
-        function haversineKm(lat1, lng1, lat2, lng2) {
-            const R = 6371;
-            const toRad = d => d * Math.PI / 180;
-            const dLat = toRad(lat2 - lat1);
-            const dLng = toRad(lng2 - lng1);
-            const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        }
-
-        // ── Render flights ───────────────────────
-        function renderFlights(filter) {
-            arcGroup.selectAll('*').remove();
-            dotGroup.selectAll('*').remove();
-            svg.call(zoom.transform, initialTransform);
-
-            const filtered = FLIGHTS.filter(f => {
-                if (filter === 'since-aug-2025') return f.date >= '2025-08';
-                if (filter === '2026') return f.date >= '2026-01-01' && f.date < '2027-01-01';
-                return true;
-            });
-
-            // Aggregate
-            const routeCounts = {};
-            const airportFlightCount = {};
-
-            filtered.forEach(f => {
-                const key = [f.from, f.to].sort().join('-');
-                routeCounts[key] = routeCounts[key] || { from: f.from, to: f.to, count: 0 };
-                routeCounts[key].count++;
-                airportFlightCount[f.from] = (airportFlightCount[f.from] || 0) + 1;
-                airportFlightCount[f.to] = (airportFlightCount[f.to] || 0) + 1;
-            });
-
-            const routes = Object.values(routeCounts);
-            const maxTrips = Math.max(...routes.map(r => r.count), 1);
-
-            // Draw arcs (D3 handles great circles + clipping natively)
-            routes.forEach(r => {
-                const from = AIRPORTS[r.from];
-                const to = AIRPORTS[r.to];
-                if (!from || !to) return;
-
-                const line = {
-                    type: "LineString",
-                    coordinates: [[from.lng, from.lat], [to.lng, to.lat]]
-                };
-
-                const opacity = 0.15 + 0.5 * (r.count / maxTrips);
-                const weight = 1 + 1.5 * (r.count / maxTrips);
-
-                arcGroup.append('path')
-                    .datum(line)
-                    .attr('d', path)
-                    .attr('class', 'flight-arc')
-                    .attr('stroke-opacity', opacity)
-                    .attr('stroke-width', weight)
-                    .attr('data-base-width', weight);
-            });
-
-            // Draw airport dots
-            const maxCount = Math.max(...Object.values(airportFlightCount), 1);
-
-            Object.keys(airportFlightCount).forEach(code => {
-                const ap = AIRPORTS[code];
-                if (!ap) return;
-                const count = airportFlightCount[code];
-                const r = 3 + 5 * (count / maxCount);
-                const pt = projection([ap.lng, ap.lat]);
-                if (!pt) return;
-
-                dotGroup.append('circle')
-                    .attr('cx', pt[0])
-                    .attr('cy', pt[1])
-                    .attr('r', r)
-                    .attr('data-base-r', r)
-                    .attr('class', 'airport-dot')
-                    .on('mouseenter', (event) => {
-                        tooltip.innerHTML = `${code} &middot; ${ap.city}<br>${count} flight${count !== 1 ? 's' : ''}`;
-                        tooltip.style.opacity = '1';
-                        tooltip.style.left = (pt[0] - tooltip.offsetWidth / 2) + 'px';
-                        tooltip.style.top = (pt[1] - r - tooltip.offsetHeight - 6) + 'px';
-                    })
-                    .on('mouseleave', () => {
-                        tooltip.style.opacity = '0';
-                    });
-            });
-
-            // Stats
-            const totalFlights = filtered.length;
-            const uniqueAirports = Object.keys(airportFlightCount).length;
-            const uniqueRoutes = routes.length;
-            const totalKm = filtered.reduce((s, f) => {
-                const from = AIRPORTS[f.from], to = AIRPORTS[f.to];
-                if (!from || !to) return s;
-                return s + haversineKm(from.lat, from.lng, to.lat, to.lng);
-            }, 0);
-
-            document.getElementById('flight-stats').innerHTML = [
-                { value: totalFlights.toLocaleString(), label: "Total Flights" },
-                { value: uniqueAirports.toLocaleString(), label: "Airports" },
-                { value: uniqueRoutes.toLocaleString(), label: "Routes" },
-                { value: Math.round(totalKm).toLocaleString() + " km", label: "Distance Flown" },
-            ].map(s => `
-                <div class="flight-stat">
-                    <div class="stat-value">${s.value}</div>
-                    <div class="stat-label">${s.label}</div>
-                </div>
-            `).join('');
-        }
-
-        // ── Filter toggle ────────────────────────
-        document.querySelectorAll('#flight-filter button').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelector('#flight-filter button.active').classList.remove('active');
-                btn.classList.add('active');
-                renderFlights(btn.dataset.filter);
-            });
-        });
-
-        // ── Responsive resize ────────────────────
-        window.addEventListener('resize', () => {
-            const w = container.clientWidth;
-            const h = Math.min(520, w * 0.52);
-            svg.attr('width', w).attr('height', h);
-            projection.fitSize([w, h], { type: "Sphere" });
-            svg.selectAll('path').attr('d', path);
-            // Re-render dots at new positions
-            const activeFilter = document.querySelector('#flight-filter button.active').dataset.filter;
-            renderFlights(activeFilter);
-        });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     </script>
 
 </body>

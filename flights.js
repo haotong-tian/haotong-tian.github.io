@@ -137,4 +137,5 @@ const FLIGHTS = [
     { date: "2026-03-22", from: "PHL", to: "MIA", airline: "UA" },
     { date: "2026-03-26", from: "MIA", to: "SFO", airline: "UA" },
     { date: "2026-03-30", from: "SFO", to: "MIA", airline: "UA" },
+    { date: "2026-04-03", from: "MIA", to: "SFO", airline: "UA" },
 ];

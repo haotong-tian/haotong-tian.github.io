@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Releases — Haotong Tian</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .feed {
+            max-width: 620px;
+            padding: 4rem 0;
+        }
+
+        /* ── Timeline spine ────────────────────── */
+        .feed-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .feed-timeline::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: var(--rule);
+        }
+
+        /* ── Year marker ───────────────────────── */
+        .feed-year {
+            position: relative;
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feed-year:first-child {
+            margin-top: 0;
+        }
+
+        .feed-year::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 11px;
+            height: 11px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        /* ── Post card ─────────────────────────── */
+        .post {
+            position: relative;
+            margin-bottom: 2.5rem;
+        }
+
+        .post::before {
+            content: '';
+            position: absolute;
+            left: -1.65rem;
+            top: 0.65rem;
+            width: 7px;
+            height: 7px;
+            background: var(--bg);
+            border: 2px solid var(--rule);
+            border-radius: 50%;
+        }
+
+        .post-date {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content {
+            padding: 1.5rem;
+            border: 1px solid var(--rule);
+            border-radius: 8px;
+            background: var(--bg);
+            transition: all 0.2s;
+        }
+
+        .post-content:hover {
+            border-color: var(--text-muted);
+            box-shadow: 0 4px 16px rgba(13, 27, 62, 0.04);
+        }
+
+        .post-content h3 {
+            font-family: var(--display);
+            font-size: 1.15rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.35;
+        }
+
+        .post-content p {
+            color: var(--text-muted);
+            font-weight: 300;
+            font-size: 0.92rem;
+            line-height: 1.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .post-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .post-content a {
+            font-weight: 500;
+        }
+
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.8rem;
+        }
+
+        .post-tags span {
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            padding: 0.2rem 0.55rem;
+            background: var(--code-bg);
+            border-radius: 3px;
+            color: var(--text-muted);
+        }
+
+        /* ── Image in post ─────────────────────── */
+        .post-img {
+            width: 100%;
+            border-radius: 6px;
+            margin: 0.8rem 0;
+        }
+
+        /* ── Pinned post ───────────────────────── */
+        .post.pinned .post-content {
+            border-color: var(--accent);
+            border-width: 1.5px;
+        }
+
+        .post.pinned .pin-badge {
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .post.pinned::before {
+            border-color: var(--accent);
+            background: var(--accent);
+        }
+
+        /* ── Filter chips ──────────────────────── */
+        .feed-filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2.5rem;
+        }
+
+        .feed-filters button {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            padding: 0.35rem 0.8rem;
+            border: 1px solid var(--rule);
+            border-radius: 20px;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .feed-filters button:hover,
+        .feed-filters button.active {
+            border-color: var(--text);
+            color: var(--text);
+            background: var(--bg-alt);
+        }
+
+        @media (max-width: 680px) {
+            .feed { padding: 3rem 0; }
+            .feed-timeline { padding-left: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="work.html">Work</a></li>
+            <li><a href="education.html">Education</a></li>
+            <li><a href="misc.html" class="active">Misc</a>
+                <ul class="dropdown-menu">
+                    <li><a href="releases.html">Releases</a></li>
+                    <li><a href="flight-log.html">Flight Log</a></li>
+                </ul>
+            </li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <header class="page-header">
+            <div class="container">
+                <h1>Releases</h1>
+                <p class="subtitle">Updates, thoughts, and things worth sharing.</p>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="feed">
+                <div class="feed-filters">
+                    <button class="active" data-filter="all">All</button>
+                    <button data-filter="work">Work</button>
+                    <button data-filter="life">Life</button>
+                </div>
+
+                <div class="feed-timeline">
+
+                    <!-- 2026 -->
+                    <div class="feed-year">2026</div>
+
+                    <div class="post pinned" data-category="work">
+                        <div class="post-date">Mar 28, 2026</div>
+                        <div class="post-content">
+                            <div class="pin-badge">Pinned</div>
+                            <h3>This site is live.</h3>
+                            <p>Finally got around to building a personal homepage.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Haotong Tian &nbsp;&middot;&nbsp; <a href="mailto:victor.ht.tian@gmail.com">victor.ht.tian@gmail.com</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Nav scroll
+        const nav = document.querySelector('nav');
+        window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 20));
+
+        // Reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+            });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Filter
+        const buttons = document.querySelectorAll('.feed-filters button');
+        const posts = document.querySelectorAll('.post');
+        const years = document.querySelectorAll('.feed-year');
+
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                buttons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const filter = btn.dataset.filter;
+
+                posts.forEach(post => {
+                    if (filter === 'all' || post.dataset.category === filter) {
+                        post.style.display = '';
+                    } else {
+                        post.style.display = 'none';
+                    }
+                });
+
+                // Show/hide year markers based on whether they have visible posts
+                years.forEach(year => {
+                    let next = year.nextElementSibling;
+                    let hasVisible = false;
+                    while (next && !next.classList.contains('feed-year')) {
+                        if (next.classList.contains('post') && next.style.display !== 'none') {
+                            hasVisible = true;
+                            break;
+                        }
+                        next = next.nextElementSibling;
+                    }
+                    year.style.display = hasVisible ? '' : 'none';
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
