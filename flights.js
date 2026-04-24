@@ -27,6 +27,7 @@ const AIRPORTS = {
     SEA: { lat: 47.4502, lng: -122.3088, city: "Seattle" },
     IAD: { lat: 38.9531, lng: -77.4565, city: "Washington Dulles" },
     DCA: { lat: 38.8512, lng: -77.0402, city: "Washington Reagan" },
+    BWI: { lat: 39.1754, lng: -76.6683, city: "Baltimore" },
     ATL: { lat: 33.6407, lng: -84.4277, city: "Atlanta" },
     DFW: { lat: 32.8998, lng: -97.0403, city: "Dallas" },
     LAS: { lat: 36.0840, lng: -115.1537, city: "Las Vegas" },
@@ -138,4 +139,6 @@ const FLIGHTS = [
     { date: "2026-03-26", from: "MIA", to: "SFO", airline: "UA" },
     { date: "2026-03-30", from: "SFO", to: "MIA", airline: "UA" },
     { date: "2026-04-03", from: "MIA", to: "SFO", airline: "UA" },
+    { date: "2026-04-19", from: "SFO", to: "BWI", airline: "UA" },
+    { date: "2026-04-23", from: "IAD", to: "SFO", airline: "UA" },
 ];
