@@ -141,4 +141,8 @@ const FLIGHTS = [
     { date: "2026-04-03", from: "MIA", to: "SFO", airline: "UA" },
     { date: "2026-04-19", from: "SFO", to: "BWI", airline: "UA" },
     { date: "2026-04-23", from: "IAD", to: "SFO", airline: "UA" },
+    { date: "2026-04-26", from: "SFO", to: "ORD", airline: "UA" },
+    { date: "2026-04-29", from: "ORD", to: "SFO", airline: "UA" },
+    { date: "2026-05-08", from: "SFO", to: "SEA", airline: "UA" },
+    { date: "2026-05-08", from: "SEA", to: "SFO", airline: "DL" },
 ];
