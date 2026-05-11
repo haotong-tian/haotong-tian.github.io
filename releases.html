@@ -85,11 +85,13 @@
         }
 
         .post-content {
+            position: relative;
             padding: 1.5rem;
             border: 1px solid var(--rule);
             border-radius: 8px;
             background: var(--bg);
             transition: all 0.2s;
+            cursor: pointer;
         }
 
         .post-content:hover {
@@ -102,6 +104,54 @@
             font-size: 1.15rem;
             margin-bottom: 0.5rem;
             line-height: 1.35;
+            padding-right: 1.5rem;
+        }
+
+        /* ── Collapse / expand ─────────────────── */
+        .post-content::after {
+            content: '';
+            position: absolute;
+            top: 1.85rem;
+            right: 1.5rem;
+            width: 7px;
+            height: 7px;
+            border-right: 1.5px solid var(--text-muted);
+            border-bottom: 1.5px solid var(--text-muted);
+            transform: rotate(45deg);
+            transition: transform 0.25s;
+        }
+
+        .post.expanded .post-content::after {
+            transform: rotate(-135deg);
+            top: 2rem;
+        }
+
+        .post-body {
+            display: none;
+        }
+
+        .post.expanded .post-body {
+            display: block;
+        }
+
+        .post-location {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            margin-top: 0.2rem;
+        }
+
+        .post-location::before {
+            content: '';
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            background: var(--text-muted);
+            -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z'/></svg>") no-repeat center / contain;
+                    mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z'/></svg>") no-repeat center / contain;
         }
 
         .post-content p {
@@ -139,6 +189,9 @@
         /* ── Image in post ─────────────────────── */
         .post-img {
             width: 100%;
+            max-height: 390px;
+            object-fit: cover;
+            object-position: center 65%;
             border-radius: 6px;
             margin: 0.8rem 0;
         }
@@ -162,6 +215,12 @@
             border-color: var(--accent);
             background: var(--accent);
         }
+
+        /* Pinned posts: always expanded, no chevron, no click */
+        .post.pinned .post-body { display: block; }
+        .post.pinned .post-content { cursor: default; }
+        .post.pinned .post-content::after { display: none; }
+        .post.pinned .post-content h3 { padding-right: 0; }
 
         /* ── Filter chips ──────────────────────── */
         .feed-filters {
@@ -235,12 +294,37 @@
                     <!-- 2026 -->
                     <div class="feed-year">2026</div>
 
+                    <div class="post" data-category="work">
+                        <div class="post-date">May 8, 2026</div>
+                        <div class="post-content">
+                            <h3>Facilitated the GenAI Hackathon at BCG Seattle.</h3>
+                            <div class="post-location">Seattle, WA</div>
+                            <div class="post-body">
+                                <p>Spent an afternoon with the Seattle office walking through advanced GenAI use cases and helping teams prototype during the hackathon.</p>
+                                <img src="assets/seattle-hackathon.jpg" alt="GenAI Hackathon at BCG Seattle" class="post-img">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="post pinned" data-category="work">
                         <div class="post-date">Mar 28, 2026</div>
                         <div class="post-content">
                             <div class="pin-badge">Pinned</div>
                             <h3>This site is live.</h3>
-                            <p>Finally got around to building a personal homepage.</p>
+                            <div class="post-body">
+                                <p>Finally got around to building a personal homepage.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="post" data-category="work">
+                        <div class="post-date">Mar 26, 2026</div>
+                        <div class="post-content">
+                            <h3>Kicked off the GenAI Hackathon at BCG Bay Area.</h3>
+                            <div class="post-location">Bay Area, CA</div>
+                            <div class="post-body">
+                                <p>Kicked off the hackathon with the Bay Area team — SF and Silicon Valley offices together — sharing advanced GenAI use cases and helping folks prototype on the spot.</p>
+                            </div>
                         </div>
                     </div>
 
@@ -267,6 +351,13 @@
             });
         }, { threshold: 0.15 });
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Expand / collapse posts (pinned posts stay expanded)
+        document.querySelectorAll('.post:not(.pinned) .post-content').forEach(content => {
+            content.addEventListener('click', () => {
+                content.closest('.post').classList.toggle('expanded');
+            });
+        });
 
         // Filter
         const buttons = document.querySelectorAll('.feed-filters button');
