@@ -196,6 +196,16 @@
             margin: 0.8rem 0;
         }
 
+        /* Full-bleed (no crop) — for portraits or images that shouldn't be cropped */
+        .post-img.full {
+            display: block;
+            width: auto;
+            max-width: 100%;
+            max-height: 600px;
+            object-fit: contain;
+            margin: 0.8rem auto;
+        }
+
         /* ── Pinned post ───────────────────────── */
         .post.pinned .post-content {
             border-color: var(--accent);
@@ -301,7 +311,7 @@
                             <div class="post-location">Seattle, WA</div>
                             <div class="post-body">
                                 <p>Spent an afternoon with the Seattle office walking through advanced GenAI use cases and helping teams prototype during the hackathon.</p>
-                                <img src="assets/seattle-hackathon.jpg" alt="GenAI Hackathon at BCG Seattle" class="post-img">
+                                <img src="assets/releases/seattle-hackathon.jpg" alt="GenAI Hackathon at BCG Seattle" class="post-img">
                             </div>
                         </div>
                     </div>
@@ -324,6 +334,67 @@
                             <div class="post-location">Bay Area, CA</div>
                             <div class="post-body">
                                 <p>Kicked off the hackathon with the Bay Area team — SF and Silicon Valley offices together — sharing advanced GenAI use cases and helping folks prototype on the spot.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="post" data-category="work">
+                        <div class="post-date">Mar 25, 2026</div>
+                        <div class="post-content">
+                            <h3>Soft-launched Cost Diagnostics Platform at Consumer Practice Global Meeting.</h3>
+                            <div class="post-location">Miami, FL</div>
+                            <div class="post-body">
+                                <p>Brought the outside-in benchmarking module of the BCG Cost Diagnostic platform to the Consumer practice's global meeting — first showing of the capability to the broader practice.</p>
+                                <img src="assets/releases/consumer-practice-global.jpg" alt="Cost Diagnostics Platform soft launch at Consumer Practice Global Meeting in Miami" class="post-img">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2025 -->
+                    <div class="feed-year">2025</div>
+
+                    <div class="post" data-category="work">
+                        <div class="post-date">November 2025</div>
+                        <div class="post-content">
+                            <h3>Joined BCG's Applied AI Forward Deployment team.</h3>
+                            <div class="post-location">San Francisco, CA</div>
+                            <div class="post-body">
+                                <p>Moved onto the Applied AI Forward Deployment team as an early member — building automation to transform BCG case offerings.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="post" data-category="work life">
+                        <div class="post-date">Aug 11, 2025</div>
+                        <div class="post-content">
+                            <h3>Started at BCG. Moved to the Bay Area.</h3>
+                            <div class="post-location">San Francisco, CA</div>
+                            <div class="post-body">
+                                <p>Started as an Associate on BCG's traditional consulting team — case work has included Technology Diligence and AI Strategy.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="post" data-category="work">
+                        <div class="post-date">May 25, 2025</div>
+                        <div class="post-content">
+                            <h3>Released xbench with HongShan Group.</h3>
+                            <div class="post-location">Beijing, China</div>
+                            <div class="post-body">
+                                <p>Public release of xbench in partnership with HongShan Group.</p>
+                                <img src="assets/releases/xbench-launch.jpg" alt="xbench release with HongShan Group" class="post-img">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="post" data-category="life">
+                        <div class="post-date">May 18, 2025</div>
+                        <div class="post-content">
+                            <h3>Graduated summa cum laude from the University of Pennsylvania.</h3>
+                            <div class="post-location">Philadelphia, PA</div>
+                            <div class="post-body">
+                                <p>Dual bachelor's degree in Engineering (Computer Science) and Wharton (Finance), plus a Master's in Robotics.</p>
+                                <img src="assets/releases/penn-graduation.jpg" alt="Penn graduation" class="post-img full">
                             </div>
                         </div>
                     </div>
@@ -371,7 +442,8 @@
                 const filter = btn.dataset.filter;
 
                 posts.forEach(post => {
-                    if (filter === 'all' || post.dataset.category === filter) {
+                    const categories = (post.dataset.category || '').split(/\s+/);
+                    if (filter === 'all' || categories.includes(filter)) {
                         post.style.display = '';
                     } else {
                         post.style.display = 'none';
