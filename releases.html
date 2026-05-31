@@ -206,6 +206,34 @@
             margin: 0.8rem auto;
         }
 
+        /* ── Image row in post (multi-photo layout) ───────── */
+        .post-img-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin: 0.8rem 0;
+        }
+
+        .post-img-row--asym {
+            grid-template-columns: 2fr 1fr;
+        }
+
+        .post-img-row img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 6px;
+            display: block;
+        }
+
+        @media (max-width: 680px) {
+            .post-img-row,
+            .post-img-row--asym {
+                grid-template-columns: 1fr;
+            }
+            .post-img-row img { height: 200px; }
+        }
+
         /* ── Pinned post ───────────────────────── */
         .post.pinned .post-content {
             border-color: var(--accent);
@@ -303,6 +331,29 @@
 
                     <!-- 2026 -->
                     <div class="feed-year">2026</div>
+
+                    <div class="post" data-category="work">
+                        <div class="post-date">May 13, 2026</div>
+                        <div class="post-content">
+                            <h3>Demoed the Cost Diagnostic platform at BCG's EDGE Expo.</h3>
+                            <div class="post-location">San Francisco, CA</div>
+                            <div class="post-body">
+                                <p>Showcased one of our forward deployment builds for cost transformation — an AI-enabled workflow designed to help teams move from diagnostic insight to client-ready execution.</p>
+
+                                <img src="assets/releases/edge-expo-booth.jpg" alt="AI Cost Advantage booth at BCG EDGE Expo" class="post-img">
+
+                                <div class="post-img-row post-img-row--asym">
+                                    <img src="assets/releases/edge-expo-solo.jpg" alt="At the AI Cost Advantage booth">
+                                    <img src="assets/releases/edge-expo-sign.jpg" alt="Agent 2 Impact by EDGE — venue signage">
+                                </div>
+
+                                <div class="post-img-row">
+                                    <img src="assets/releases/edge-expo-team-1.jpg" alt="With the forward deployment team at the booth">
+                                    <img src="assets/releases/edge-expo-team-2.jpg" alt="Team photo by the C01 — Realizing AI Cost Advantage pillar">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="post" data-category="work">
                         <div class="post-date">May 8, 2026</div>
