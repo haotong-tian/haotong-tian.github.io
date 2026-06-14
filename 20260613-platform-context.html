@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Cost Diagnostic Platform — context</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#F7F8FA;--surface:#FFFFFF;--navy:#1A2744;--ink:#1A2330;--ink2:#3D4757;--ink3:#76808F;
+  --line:#E3E7ED;--line2:#CDD3DC;
+  --green:#157A5E;--green-bg:#EAF4EF;--green-line:#BBDDCD;
+  --amber:#E0A33C;--amber-bg:#FBEFD6;--amber-ink:#8A5C0E;--amber-line:#E6C988;
+  --blue:#2F5A8B;--blue-bg:#DDE7F2;--blue-line:#9FB6D4;
+  --purple:#6741A5;--purple-bg:#F0E8F7;--purple-line:#C7B8DA;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1120px;margin:0 auto;padding:48px 32px 80px;}
+header h1{font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0 0 8px;color:var(--navy);}
+header p{font-size:14px;color:var(--ink2);margin:0;max-width:80ch;}
+h2.part{font-size:10px;font-family:var(--mono);letter-spacing:.18em;text-transform:uppercase;color:#fff;background:var(--navy);display:inline-block;padding:4px 11px;border-radius:6px;margin:44px 0 6px;}
+h3.h{font-size:18px;font-weight:600;color:var(--navy);margin:4px 0 12px;}
+code{font-family:var(--mono);font-size:11.5px;background:#fff;border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--blue);}
+
+/* ── fleet architecture toggle ── */
+.arch-toggle{display:inline-flex;gap:5px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px;margin-bottom:18px;flex-wrap:wrap;}
+.arch-toggle button{font-family:var(--mono);cursor:pointer;border:none;background:transparent;border-radius:999px;padding:7px 16px;font-size:12px;font-weight:600;color:var(--ink2);transition:background .15s,color .15s;}
+.arch-toggle button.active{background:var(--surface);color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.arch-panel{display:none;}
+.arch-panel.show{display:block;}
+.arch-head{margin-bottom:12px;}
+.arch-head h3{font-size:18px;font-weight:700;margin:0 0 3px;color:var(--navy);}
+.arch-head .one{font-size:13px;color:var(--ink3);}
+.diagram-pair{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;margin-bottom:12px;}
+.cell-label{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px;}
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 10px;}
+.diagram svg{display:block;width:100%;height:auto;max-height:280px;}
+.o-note{font-size:13px;color:var(--ink2);margin:0;padding-top:10px;border-top:1px dashed var(--line2);}
+.o-note b{color:var(--ink);font-weight:600;}
+.o-note.win b{color:var(--green);}
+/* svg shared primitives */
+.box-fill{fill:#FFFFFF}.box-stroke{stroke:#3D4757;stroke-width:.8}
+.box-rec{fill:var(--green-bg);stroke:var(--green);stroke-width:.8}
+.box-muted{fill:#E8ECF1;stroke:#B9C2CE;stroke-width:.8}
+.box-pa{fill:var(--amber-bg);stroke:#D9B274;stroke-width:.7}
+.box-gen{fill:#DCE6F2;stroke:#8FA9C9;stroke-width:.7}
+.arrow{stroke:#76808F;stroke-width:.9;fill:none}
+.arrow-rec{stroke:var(--green);stroke-width:1;fill:none}
+.lbl{font-family:'Inter',sans-serif;font-size:8px;fill:#1A2330;font-weight:500}
+.lbl-sm{font-family:'Inter',sans-serif;font-size:7px;fill:#3D4757}
+.lbl-tag{font-family:'Inter',sans-serif;font-size:6.5px;fill:#3D4757;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+
+/* ── runtime architecture ── */
+.runtime-svg-wrap{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 18px 12px;margin-bottom:4px;}
+.runtime-svg-wrap svg{display:block;width:100%;height:auto;}
+
+/* ── flow (from repo structure review) ── */
+.flow{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 26px 16px;margin:4px 0;}
+.flow .lanes{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding-bottom:10px;border-bottom:1px dashed var(--line);}
+.flow .lh{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;}
+.flow .lh.orch{color:var(--green);}
+.flow .lh.sub{color:var(--blue);text-align:right;}
+.flow .lh span{display:block;font-size:9.5px;letter-spacing:.06em;color:var(--ink3);font-weight:400;margin-top:2px;text-transform:none;}
+.flow .moments{position:relative;display:flex;flex-direction:column;gap:12px;padding:16px 0 4px;}
+.flow .moments::before{content:'';position:absolute;left:34px;top:0;bottom:0;border-left:2px dashed var(--green-line);}
+.flow .moment{display:grid;grid-template-columns:90px 1fr 90px;align-items:center;gap:12px;position:relative;}
+.flow .side{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;line-height:1.3;}
+.flow .orch-side{color:var(--green);justify-content:flex-start;}
+.flow .sub-side{color:var(--blue);justify-content:flex-end;}
+.flow .num{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;font-size:10.5px;font-weight:600;color:#fff;flex-shrink:0;}
+.flow .num.orch{background:var(--green);}
+.flow .num.sub{background:var(--blue);}
+.flow .card{border-radius:9px;padding:10px 14px;text-align:center;position:relative;}
+.flow .card.task{background:var(--blue-bg);border:1px solid var(--blue-line);}
+.flow .card.parcel{background:var(--green-bg);border:1px solid var(--green-line);}
+.flow .cname{font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--navy);margin-bottom:2px;}
+.flow .cdx{font-family:var(--mono);font-size:10px;color:var(--ink2);}
+.flow .card.task::before{content:'\2192';position:absolute;left:-20px;top:50%;transform:translateY(-50%);color:var(--blue);font-size:15px;}
+.flow .card.task::after{content:'\2192';position:absolute;right:-20px;top:50%;transform:translateY(-50%);color:var(--blue);font-size:15px;}
+.flow .card.parcel::before{content:'\2190';position:absolute;left:-20px;top:50%;transform:translateY(-50%);color:var(--green);font-size:15px;}
+.flow .card.parcel::after{content:'\2190';position:absolute;right:-20px;top:50%;transform:translateY(-50%);color:var(--green);font-size:15px;}
+.flow .moment.intermediate .note{font-family:var(--mono);font-size:10.5px;color:var(--ink3);text-align:center;font-style:italic;padding:3px 0;}
+.flow .final{margin-top:12px;padding:10px 14px;background:var(--green-bg);border:1px solid var(--green-line);border-radius:7px;font-size:12px;color:var(--ink);display:flex;align-items:center;gap:7px;}
+.bus{background:#fff;border:1px solid var(--green-line);border-left:3px solid var(--green);border-radius:9px;padding:12px 16px;margin:12px 0;}
+.bus .lbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:6px;}
+.bus .r1{font-size:12.5px;color:var(--ink);display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
+.bus .r1 code{background:var(--green-bg);border-color:var(--green-line);color:var(--green);}
+.bus .arr{font-family:var(--mono);font-size:10.5px;color:var(--ink3);}
+
+/* ── cube ── */
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-top:12px;overflow:hidden;}
+.toolbar{display:flex;align-items:center;gap:7px;padding:10px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+.toolbar .tl{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-right:4px;}
+.vbtn{font-family:var(--mono);font-size:11px;background:#fff;border:1px solid var(--line2);color:var(--ink2);border-radius:999px;padding:3px 12px;cursor:pointer;transition:all .15s;}
+.vbtn:hover{border-color:var(--navy);color:var(--navy);}
+.vbtn.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+.toolbar .hint{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--ink3);}
+.stage-body{display:flex;min-height:520px;}
+.viewport{flex:1;position:relative;min-width:0;background:radial-gradient(ellipse 70% 55% at 50% 42%,rgba(47,90,139,.04),transparent 70%),var(--surface);}
+.viewport svg{display:block;width:100%;height:100%;cursor:grab;user-select:none;touch-action:none;}
+.viewport svg.dragging{cursor:grabbing;}
+.panel{flex:0 0 300px;border-left:1px solid var(--line);display:flex;flex-direction:column;background:#FBFCFD;}
+.panel .ph{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);padding:12px 16px 7px;}
+.slist{list-style:none;margin:0;padding:0 8px;overflow-y:auto;}
+.slist li{display:flex;align-items:center;gap:8px;padding:6px 9px;border-radius:7px;cursor:pointer;font-size:12px;color:var(--ink2);transition:background .1s;}
+.slist li:hover{background:#F0F3F7;}
+.slist li.sel{background:var(--blue-bg);color:var(--navy);font-weight:600;}
+.slist .dot{flex:0 0 9px;height:9px;border-radius:50%;border:2px solid;}
+.slist .nm{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.badge{display:inline-block;font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;padding:1px 6px;border-radius:999px;}
+.badge.live{background:var(--green);color:#fff;}
+.badge.proposed{background:var(--blue-bg);border:1px solid var(--blue-line);color:var(--blue);}
+.badge.moonshot{background:var(--purple-bg);border:1px solid var(--purple-line);color:var(--purple);}
+.badge.target{background:var(--purple);color:#fff;}
+.detail{border-top:1px solid var(--line);padding:13px 16px 15px;min-height:160px;}
+.detail .dn{font-size:13px;font-weight:600;color:var(--navy);margin:2px 0;}
+.detail .db{margin:7px 0 0;padding-left:15px;font-size:11.5px;color:var(--ink2);line-height:1.45;}
+.detail .db li{margin-bottom:5px;}
+.detail .db b{color:var(--navy);}
+.detail .empty{font-size:12px;color:var(--ink3);font-style:italic;padding-top:24px;text-align:center;}
+.cube-legend{display:flex;flex-wrap:wrap;gap:14px;align-items:center;padding:10px 16px;border-top:1px solid var(--line);background:#FBFCFD;font-family:var(--mono);font-size:10px;color:var(--ink3);}
+.cube-legend .li{display:flex;align-items:center;gap:6px;}
+
+footer{margin-top:40px;border-top:1px solid var(--line);padding-top:12px;font-family:var(--mono);font-size:10px;color:var(--ink3);}
+@media(max-width:860px){.diagram-pair{grid-template-columns:1fr;}.stage-body{flex-direction:column;}.panel{flex:none;border-left:none;border-top:1px solid var(--line);}.flow .moment{grid-template-columns:72px 1fr 72px;gap:8px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ── 1. WHAT IS THIS ─────────────────────────────────────────── -->
+<header>
+  <h1>Cost Diagnostic Platform</h1>
+  <p>BCG runs "cost diagnostics" for large companies — where does your money go, how do you compare to peers, where's the savings opportunity? This platform automates that analysis: a consultant sends a one-email brief, a fleet of AI agents runs in parallel on a remote server, and ~45 minutes later an HTML dashboard, Excel workbook, and summary email come back. The question on the table is how to design the right UX for a system that does serious analytical work completely unattended.</p>
+</header>
+
+<!-- ── 2. FLEET ARCHITECTURE ───────────────────────────────────── -->
+<h2 class="part">How agents are organized — pick C</h2>
+<h3 class="h">Three options for composing the agent fleet</h3>
+
+<div class="arch-toggle">
+  <button data-arch="a" class="active">Option A · Workflows</button>
+  <button data-arch="b">Option B · Persona-based</button>
+  <button data-arch="c">Option C · Ad-hoc fleet ← we use this</button>
+</div>
+
+<div class="arch-panel show" id="arch-a">
+  <div class="arch-head">
+    <h3>Fixed workflows, not agents</h3>
+    <div class="one">A library of locked pipelines. The orchestrator picks one and runs it end-to-end.</div>
+  </div>
+  <div class="diagram-pair">
+    <div><div class="cell-label">How it's organized</div>
+    <div class="diagram"><svg viewBox="0 0 320 230" xmlns="http://www.w3.org/2000/svg">
+      <rect x="120" y="6" width="80" height="16" rx="3" class="box-fill box-stroke"/><text x="160" y="17" text-anchor="middle" class="lbl">User request</text>
+      <line x1="160" y1="22" x2="160" y2="32" class="arrow"/>
+      <rect x="100" y="32" width="120" height="18" rx="3" class="box-muted"/><text x="160" y="44" text-anchor="middle" class="lbl">Orchestrator (picks workflow)</text>
+      <line x1="160" y1="50" x2="160" y2="60" class="arrow"/>
+      <line x1="50" y1="60" x2="270" y2="60" class="arrow"/>
+      <line x1="50" y1="60" x2="50" y2="70" class="arrow"/><line x1="160" y1="60" x2="160" y2="70" class="arrow"/><line x1="270" y1="60" x2="270" y2="70" class="arrow"/>
+      <text x="50" y="78" text-anchor="middle" class="lbl-tag">Outside-in BM</text>
+      <rect x="22" y="82" width="56" height="13" rx="2" class="box-fill box-stroke"/><text x="50" y="91" text-anchor="middle" class="lbl-sm">Identify peers</text>
+      <line x1="50" y1="95" x2="50" y2="101" class="arrow"/>
+      <rect x="22" y="101" width="56" height="13" rx="2" class="box-fill box-stroke"/><text x="50" y="110" text-anchor="middle" class="lbl-sm">Calc benchmark</text>
+      <line x1="50" y1="114" x2="50" y2="120" class="arrow"/>
+      <rect x="22" y="120" width="56" height="13" rx="2" class="box-fill box-stroke"/><text x="50" y="129" text-anchor="middle" class="lbl-sm">Pull levers</text>
+      <line x1="50" y1="133" x2="50" y2="139" class="arrow"/>
+      <rect x="22" y="139" width="56" height="13" rx="2" class="box-pa"/><text x="50" y="148" text-anchor="middle" class="lbl-sm">Slides (PA)</text>
+      <text x="160" y="78" text-anchor="middle" class="lbl-tag">P&amp;L Teardown</text>
+      <rect x="132" y="82" width="56" height="13" rx="2" class="box-fill box-stroke"/><text x="160" y="91" text-anchor="middle" class="lbl-sm">Grab taxonomy</text>
+      <line x1="160" y1="95" x2="160" y2="101" class="arrow"/>
+      <rect x="132" y="101" width="56" height="13" rx="2" class="box-fill box-stroke"/><text x="160" y="110" text-anchor="middle" class="lbl-sm">Map P&amp;L</text>
+      <line x1="160" y1="114" x2="160" y2="120" class="arrow"/>
+      <rect x="132" y="120" width="56" height="13" rx="2" class="box-fill box-stroke"/><text x="160" y="129" text-anchor="middle" class="lbl-sm">YoY movers</text>
+      <line x1="160" y1="133" x2="160" y2="139" class="arrow"/>
+      <rect x="132" y="139" width="56" height="13" rx="2" class="box-pa"/><text x="160" y="148" text-anchor="middle" class="lbl-sm">Slides (PA)</text>
+      <text x="270" y="78" text-anchor="middle" class="lbl-tag">Functional BM</text>
+      <rect x="242" y="82" width="56" height="13" rx="2" class="box-fill box-stroke"/><text x="270" y="91" text-anchor="middle" class="lbl-sm">Identify KPIs</text>
+      <line x1="270" y1="95" x2="270" y2="101" class="arrow"/>
+      <rect x="242" y="101" width="56" height="13" rx="2" class="box-fill box-stroke"/><text x="270" y="110" text-anchor="middle" class="lbl-sm">Peer query</text>
+      <line x1="270" y1="114" x2="270" y2="120" class="arrow"/>
+      <rect x="242" y="120" width="56" height="13" rx="2" class="box-fill box-stroke"/><text x="270" y="129" text-anchor="middle" class="lbl-sm">Size savings</text>
+      <line x1="270" y1="133" x2="270" y2="139" class="arrow"/>
+      <rect x="242" y="139" width="56" height="13" rx="2" class="box-pa"/><text x="270" y="148" text-anchor="middle" class="lbl-sm">Slides (PA)</text>
+      <line x1="50" y1="155" x2="50" y2="180" class="arrow"/><line x1="160" y1="155" x2="160" y2="180" class="arrow"/><line x1="270" y1="155" x2="270" y2="180" class="arrow"/>
+      <line x1="50" y1="180" x2="270" y2="180" class="arrow"/>
+      <line x1="160" y1="180" x2="160" y2="192" class="arrow"/>
+      <rect x="120" y="192" width="80" height="16" rx="3" class="box-muted"/><text x="160" y="203" text-anchor="middle" class="lbl">Summary &amp; synthesis</text>
+    </svg></div></div>
+    <div><div class="cell-label">A run · Supply Chain BM</div>
+    <div class="diagram"><svg viewBox="0 0 320 230" xmlns="http://www.w3.org/2000/svg">
+      <rect x="80" y="8" width="160" height="18" rx="3" class="box-fill box-stroke"/><text x="160" y="20" text-anchor="middle" class="lbl">User request → Functional BM workflow</text>
+      <line x1="160" y1="26" x2="160" y2="38" class="arrow"/>
+      <rect x="90" y="38" width="140" height="20" rx="3" class="box-fill box-stroke"/>
+      <text x="160" y="48" text-anchor="middle" class="lbl-tag" fill="#76808F">Step 1</text><text x="160" y="55" text-anchor="middle" class="lbl">Identify KPIs</text>
+      <line x1="160" y1="58" x2="160" y2="70" class="arrow"/>
+      <rect x="90" y="70" width="140" height="20" rx="3" class="box-fill box-stroke"/>
+      <text x="160" y="80" text-anchor="middle" class="lbl-tag" fill="#76808F">Step 2</text><text x="160" y="87" text-anchor="middle" class="lbl">Query peer benchmarks</text>
+      <line x1="160" y1="90" x2="160" y2="102" class="arrow"/>
+      <rect x="90" y="102" width="140" height="20" rx="3" class="box-fill box-stroke"/>
+      <text x="160" y="112" text-anchor="middle" class="lbl-tag" fill="#76808F">Step 3</text><text x="160" y="119" text-anchor="middle" class="lbl">Pull levers, size savings</text>
+      <line x1="160" y1="122" x2="160" y2="134" class="arrow"/>
+      <rect x="90" y="134" width="140" height="20" rx="3" class="box-pa"/>
+      <text x="160" y="144" text-anchor="middle" class="lbl-tag" fill="#8A5C0E">Step 4 · CPG</text><text x="160" y="151" text-anchor="middle" class="lbl">Build slides &amp; workbook</text>
+      <line x1="160" y1="154" x2="160" y2="166" class="arrow"/>
+      <rect x="120" y="166" width="80" height="18" rx="3" class="box-muted"/><text x="160" y="178" text-anchor="middle" class="lbl">Output</text>
+      <path d="M 240 60 L 247 60 L 247 162 L 240 162" stroke="#76808F" stroke-width=".7" fill="none"/>
+      <text x="252" y="112" class="lbl-sm" font-style="italic">user approves</text>
+      <text x="252" y="121" class="lbl-sm" font-style="italic">between steps</text>
+    </svg></div></div>
+  </div>
+  <p class="o-note"><b>Limitation —</b> every new ask requires a new workflow; PA knowledge duplicated inside each pipeline.</p>
+</div>
+
+<div class="arch-panel" id="arch-b">
+  <div class="arch-head">
+    <h3>Persona-based</h3>
+    <div class="one">A typed roster of specialists. The lead briefs each persona and sequences them. (How Penny, our PMO agent, runs today.)</div>
+  </div>
+  <div class="diagram-pair">
+    <div><div class="cell-label">How it's organized</div>
+    <div class="diagram"><svg viewBox="0 0 320 230" xmlns="http://www.w3.org/2000/svg">
+      <rect x="120" y="6" width="80" height="16" rx="3" class="box-fill box-stroke"/><text x="160" y="17" text-anchor="middle" class="lbl">User request</text>
+      <line x1="160" y1="22" x2="160" y2="32" class="arrow"/>
+      <rect x="90" y="32" width="140" height="18" rx="3" class="box-muted"/><text x="160" y="44" text-anchor="middle" class="lbl">Fleet lead (routes by persona)</text>
+      <line x1="160" y1="50" x2="160" y2="60" class="arrow"/>
+      <line x1="44" y1="60" x2="284" y2="60" class="arrow"/>
+      <line x1="44" y1="60" x2="44" y2="78" class="arrow"/><line x1="124" y1="60" x2="124" y2="78" class="arrow"/>
+      <line x1="204" y1="60" x2="204" y2="78" class="arrow"/><line x1="284" y1="60" x2="284" y2="78" class="arrow"/>
+      <rect x="12" y="78" width="64" height="60" rx="3" class="box-fill box-stroke"/>
+      <text x="44" y="88" text-anchor="middle" class="lbl">Output</text>
+      <rect x="18" y="94" width="52" height="11" rx="2" class="box-gen"/><text x="44" y="102" text-anchor="middle" class="lbl-sm">PPT slides</text>
+      <rect x="18" y="108" width="52" height="11" rx="2" class="box-gen"/><text x="44" y="116" text-anchor="middle" class="lbl-sm">Workbook</text>
+      <rect x="18" y="122" width="52" height="11" rx="2" class="box-pa"/><text x="44" y="130" text-anchor="middle" class="lbl-sm">PA polish</text>
+      <rect x="92" y="78" width="64" height="60" rx="3" class="box-fill box-stroke"/>
+      <text x="124" y="88" text-anchor="middle" class="lbl">Benchmarking</text>
+      <rect x="98" y="94" width="52" height="11" rx="2" class="box-gen"/><text x="124" y="102" text-anchor="middle" class="lbl-sm">Peer sets</text>
+      <rect x="98" y="108" width="52" height="11" rx="2" class="box-gen"/><text x="124" y="116" text-anchor="middle" class="lbl-sm">KPI calc</text>
+      <rect x="98" y="122" width="52" height="11" rx="2" class="box-pa"/><text x="124" y="130" text-anchor="middle" class="lbl-sm">PA tweaks</text>
+      <rect x="172" y="78" width="64" height="60" rx="3" class="box-fill box-stroke"/>
+      <text x="204" y="88" text-anchor="middle" class="lbl">P&amp;L mapping</text>
+      <rect x="178" y="94" width="52" height="11" rx="2" class="box-gen"/><text x="204" y="102" text-anchor="middle" class="lbl-sm">Taxonomy</text>
+      <rect x="178" y="108" width="52" height="11" rx="2" class="box-gen"/><text x="204" y="116" text-anchor="middle" class="lbl-sm">Match lines</text>
+      <rect x="178" y="122" width="52" height="11" rx="2" class="box-pa"/><text x="204" y="130" text-anchor="middle" class="lbl-sm">PA tweaks</text>
+      <rect x="252" y="78" width="64" height="60" rx="3" class="box-fill box-stroke"/>
+      <text x="284" y="88" text-anchor="middle" class="lbl">Levers</text>
+      <rect x="258" y="94" width="52" height="11" rx="2" class="box-gen"/><text x="284" y="102" text-anchor="middle" class="lbl-sm">Lever pull</text>
+      <rect x="258" y="108" width="52" height="11" rx="2" class="box-gen"/><text x="284" y="116" text-anchor="middle" class="lbl-sm">Sizing</text>
+      <rect x="258" y="122" width="52" height="11" rx="2" class="box-pa"/><text x="284" y="130" text-anchor="middle" class="lbl-sm">PA tweaks</text>
+    </svg></div></div>
+    <div><div class="cell-label">A run · Supply Chain BM</div>
+    <div class="diagram"><svg viewBox="0 0 320 230" xmlns="http://www.w3.org/2000/svg">
+      <rect x="14" y="6" width="92" height="20" rx="3" class="box-muted"/><text x="60" y="19" text-anchor="middle" class="lbl">Fleet lead</text>
+      <line x1="60" y1="26" x2="60" y2="206" stroke="#3D4757" stroke-width=".9" stroke-dasharray="2.5,2.5"/>
+      <text x="225" y="40" text-anchor="middle" class="lbl-sm" font-style="italic">"read raw data, derive A, B, C"</text>
+      <line x1="60" y1="52" x2="148" y2="52" class="arrow"/><polygon points="148,52 144,50 144,54" fill="#76808F"/>
+      <text x="104" y="49" text-anchor="middle" class="lbl-sm" fill="#76808F">spawn</text>
+      <rect x="150" y="44" width="155" height="16" rx="3" class="box-fill box-stroke"/><text x="227" y="55" text-anchor="middle" class="lbl">Data exploration agent</text>
+      <text x="225" y="78" text-anchor="middle" class="lbl-sm" font-style="italic">"benchmark on A, B, C"</text>
+      <line x1="60" y1="90" x2="148" y2="90" class="arrow"/><polygon points="148,90 144,88 144,92" fill="#76808F"/>
+      <text x="104" y="87" text-anchor="middle" class="lbl-sm" fill="#76808F">spawn</text>
+      <rect x="150" y="82" width="155" height="16" rx="3" class="box-fill box-stroke"/><text x="227" y="93" text-anchor="middle" class="lbl">Benchmarking agent</text>
+      <text x="225" y="116" text-anchor="middle" class="lbl-sm" font-style="italic">"identify levers + sizing"</text>
+      <line x1="60" y1="128" x2="148" y2="128" class="arrow"/><polygon points="148,128 144,126 144,130" fill="#76808F"/>
+      <text x="104" y="125" text-anchor="middle" class="lbl-sm" fill="#76808F">spawn</text>
+      <rect x="150" y="120" width="155" height="16" rx="3" class="box-fill box-stroke"/><text x="227" y="131" text-anchor="middle" class="lbl">Levers agent</text>
+      <text x="225" y="154" text-anchor="middle" class="lbl-sm" font-style="italic">"build slides &amp; workbook"</text>
+      <line x1="60" y1="166" x2="148" y2="166" class="arrow"/><polygon points="148,166 144,164 144,168" fill="#76808F"/>
+      <text x="104" y="163" text-anchor="middle" class="lbl-sm" fill="#76808F">spawn</text>
+      <rect x="150" y="158" width="155" height="16" rx="3" class="box-pa"/><text x="227" y="169" text-anchor="middle" class="lbl">Output agent</text>
+      <text x="60" y="218" text-anchor="middle" class="lbl-sm" font-style="italic">(persistent)</text>
+    </svg></div></div>
+  </div>
+  <p class="o-note"><b>Limitation —</b> the roster ossifies; new analytical shapes require a new agent type.</p>
+</div>
+
+<div class="arch-panel" id="arch-c">
+  <div class="arch-head">
+    <h3>Ad-hoc teamed fleet</h3>
+    <div class="one">A fleet lead composes the right squad per request from a skill pool. Members can pull in their own helpers. This is what the platform uses.</div>
+  </div>
+  <div class="diagram-pair">
+    <div><div class="cell-label">How it's organized</div>
+    <div class="diagram"><svg viewBox="0 0 320 230" xmlns="http://www.w3.org/2000/svg">
+      <rect x="30" y="6" width="80" height="16" rx="3" class="box-fill box-stroke"/><text x="70" y="17" text-anchor="middle" class="lbl">User request</text>
+      <line x1="70" y1="22" x2="70" y2="32" class="arrow-rec"/>
+      <rect x="10" y="32" width="170" height="20" rx="3" class="box-rec"/><text x="95" y="45" text-anchor="middle" class="lbl">Fleet lead</text>
+      <line x1="95" y1="52" x2="95" y2="76" class="arrow-rec"/>
+      <polygon points="95,76 92,72 98,72" fill="#157A5E"/>
+      <text x="105" y="66" text-anchor="start" class="lbl-sm" fill="#157A5E" font-style="italic">spawns sub-agents</text>
+      <rect x="15" y="80" width="160" height="62" rx="6" fill="#EAF4EF" stroke="#157A5E" stroke-width=".7" stroke-dasharray="3,2"/>
+      <text x="95" y="100" text-anchor="middle" class="lbl" fill="#1A2330">Sub-agent team</text>
+      <text x="95" y="116" text-anchor="middle" class="lbl-sm" font-style="italic" fill="#3D4757">staffed from skill pool</text>
+      <text x="95" y="126" text-anchor="middle" class="lbl-sm" font-style="italic" fill="#3D4757">— varies per request</text>
+      <rect x="200" y="32" width="115" height="174" rx="4" fill="#F7EFE6" stroke="#D9D2C2" stroke-width=".6" stroke-dasharray="2,2"/>
+      <text x="257" y="46" text-anchor="middle" class="lbl-tag">Skill pool</text>
+      <rect x="208" y="52" width="100" height="14" rx="2" class="box-gen"/><text x="257" y="62" text-anchor="middle" class="lbl-sm">Benchmarking</text>
+      <rect x="208" y="68" width="100" height="14" rx="2" class="box-gen"/><text x="257" y="78" text-anchor="middle" class="lbl-sm">Lever sizing</text>
+      <rect x="208" y="84" width="100" height="14" rx="2" class="box-gen"/><text x="257" y="94" text-anchor="middle" class="lbl-sm">P&amp;L mapping</text>
+      <rect x="208" y="100" width="100" height="14" rx="2" class="box-gen"/><text x="257" y="110" text-anchor="middle" class="lbl-sm">Web research</text>
+      <rect x="208" y="116" width="100" height="14" rx="2" class="box-gen"/><text x="257" y="126" text-anchor="middle" class="lbl-sm">Output (slides · XL)</text>
+      <rect x="208" y="132" width="100" height="14" rx="2" class="box-pa"/><text x="257" y="142" text-anchor="middle" class="lbl-sm">CPG nuance</text>
+      <rect x="208" y="148" width="100" height="14" rx="2" class="box-pa"/><text x="257" y="158" text-anchor="middle" class="lbl-sm">TMT nuance</text>
+      <rect x="208" y="164" width="100" height="14" rx="2" class="box-fill box-stroke"/><text x="257" y="174" text-anchor="middle" class="lbl-sm" font-style="italic">…and growing</text>
+      <line x1="175" y1="111" x2="200" y2="111" stroke="#157A5E" stroke-width=".7" stroke-dasharray="2,2"/>
+      <text x="187" y="106" text-anchor="middle" class="lbl-sm" fill="#157A5E" font-style="italic">staffed from</text>
+    </svg></div></div>
+    <div><div class="cell-label">A run · Supply Chain BM</div>
+    <div class="diagram"><svg viewBox="0 0 320 230" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="6" width="80" height="20" rx="3" class="box-rec"/><text x="50" y="19" text-anchor="middle" class="lbl">Fleet lead</text>
+      <line x1="50" y1="26" x2="50" y2="206" stroke="#157A5E" stroke-width=".9" stroke-dasharray="2.5,2.5"/>
+      <text x="98" y="32" class="lbl-tag" fill="#76808F">Level 1 — ad-hoc team of skills</text>
+      <line x1="50" y1="48" x2="91" y2="48" class="arrow-rec"/><polygon points="91,48 87,46 87,50" fill="#157A5E"/>
+      <text x="70" y="44" text-anchor="middle" class="lbl-sm" fill="#157A5E" font-style="italic">spawn</text>
+      <rect x="93" y="36" width="120" height="24" rx="3" class="box-fill box-stroke"/><text x="153" y="46" text-anchor="middle" class="lbl">Benchmarking</text>
+      <rect x="98" y="50" width="52" height="8" rx="2" class="box-gen"/><text x="124" y="56" text-anchor="middle" class="lbl-sm">Benchmarking</text>
+      <text x="153" y="56" text-anchor="middle" class="lbl-sm" fill="#76808F">+</text>
+      <rect x="156" y="50" width="52" height="8" rx="2" class="box-pa"/><text x="182" y="56" text-anchor="middle" class="lbl-sm">CPG nuance</text>
+      <line x1="213" y1="60" x2="213" y2="104" stroke="#76808F" stroke-width=".7" stroke-dasharray="2,2"/>
+      <text x="222" y="68" class="lbl-tag" fill="#76808F">Level 2</text>
+      <line x1="213" y1="78" x2="226" y2="78" class="arrow"/><polygon points="226,78 222,76 222,80" fill="#76808F"/>
+      <rect x="228" y="72" width="86" height="13" rx="2" class="box-fill box-stroke"/><text x="271" y="81" text-anchor="middle" class="lbl-sm">Benchmark KPI 1</text>
+      <line x1="213" y1="96" x2="226" y2="96" class="arrow"/><polygon points="226,96 222,94 222,98" fill="#76808F"/>
+      <rect x="228" y="90" width="86" height="13" rx="2" class="box-fill box-stroke"/><text x="271" y="99" text-anchor="middle" class="lbl-sm">Benchmark KPI 2</text>
+      <line x1="50" y1="128" x2="91" y2="128" class="arrow-rec"/><polygon points="91,128 87,126 87,130" fill="#157A5E"/>
+      <text x="70" y="124" text-anchor="middle" class="lbl-sm" fill="#157A5E" font-style="italic">spawn</text>
+      <rect x="93" y="116" width="120" height="24" rx="3" class="box-fill box-stroke"/><text x="153" y="126" text-anchor="middle" class="lbl">Levers + sizing</text>
+      <rect x="98" y="130" width="52" height="8" rx="2" class="box-gen"/><text x="124" y="136" text-anchor="middle" class="lbl-sm">Lever sizing</text>
+      <text x="153" y="136" text-anchor="middle" class="lbl-sm" fill="#76808F">+</text>
+      <rect x="156" y="130" width="52" height="8" rx="2" class="box-gen"/><text x="182" y="136" text-anchor="middle" class="lbl-sm">P&amp;L mapping</text>
+      <line x1="50" y1="160" x2="91" y2="160" class="arrow-rec"/><polygon points="91,160 87,158 87,162" fill="#157A5E"/>
+      <text x="70" y="156" text-anchor="middle" class="lbl-sm" fill="#157A5E" font-style="italic">spawn</text>
+      <rect x="93" y="148" width="120" height="24" rx="3" class="box-fill box-stroke"/><text x="153" y="158" text-anchor="middle" class="lbl">Output agent</text>
+      <rect x="98" y="162" width="52" height="8" rx="2" class="box-gen"/><text x="124" y="168" text-anchor="middle" class="lbl-sm">Output</text>
+      <text x="153" y="168" text-anchor="middle" class="lbl-sm" fill="#76808F">+</text>
+      <rect x="156" y="162" width="52" height="8" rx="2" class="box-pa"/><text x="182" y="168" text-anchor="middle" class="lbl-sm">CPG nuance</text>
+      <text x="50" y="222" text-anchor="middle" class="lbl-sm" font-style="italic">(persistent)</text>
+    </svg></div></div>
+  </div>
+  <p class="o-note win"><b>Why this one —</b> handles asks we haven't seen yet; PA nuance lives in skills, not pipelines; sub-agents can delegate like real associates.</p>
+</div>
+
+<!-- ── 3. RUNTIME ARCHITECTURE ─────────────────────────────────── -->
+<h2 class="part">Current agent fleet on EC2</h2>
+<h3 class="h">How a run actually flows through the platform</h3>
+
+<div class="runtime-svg-wrap">
+<svg viewBox="0 0 740 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Platform runtime architecture on EC2">
+  <!-- EC2 boundary -->
+  <rect x="6" y="20" width="728" height="230" rx="10" fill="#F7F8FA" stroke="#1A2744" stroke-width="1.4" stroke-dasharray="5,3"/>
+  <text x="14" y="14" font-family="'JetBrains Mono',monospace" font-size="9" fill="#1A2744" font-weight="600" letter-spacing=".1em">EC2 · cost-diagnostic-platform</text>
+
+  <!-- email-queue (amber) -->
+  <rect x="20" y="38" width="106" height="38" rx="5" fill="#FBEFD6" stroke="#E6C988" stroke-width="1.2"/>
+  <text x="73" y="53" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="#8A5C0E">email-queue/</text>
+  <text x="73" y="66" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8.5" fill="#B07018">poller.sh</text>
+  <line x1="127" y1="57" x2="141" y2="57" stroke="#CDD3DC" stroke-width="1.3"/>
+  <polygon points="141,57 136,54 136,60" fill="#CDD3DC"/>
+
+  <!-- API Server (blue) -->
+  <rect x="143" y="38" width="96" height="38" rx="5" fill="#DDE7F2" stroke="#9FB6D4" stroke-width="1.2"/>
+  <text x="191" y="53" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="#2F5A8B">API Server</text>
+  <text x="191" y="66" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4A6E9A">server.ts</text>
+  <line x1="240" y1="57" x2="254" y2="57" stroke="#CDD3DC" stroke-width="1.3"/>
+  <polygon points="254,57 249,54 249,60" fill="#CDD3DC"/>
+
+  <!-- Runner (blue) -->
+  <rect x="256" y="38" width="96" height="38" rx="5" fill="#DDE7F2" stroke="#9FB6D4" stroke-width="1.2"/>
+  <text x="304" y="53" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="#2F5A8B">Runner</text>
+  <text x="304" y="66" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4A6E9A">run.ts</text>
+  <line x1="353" y1="57" x2="367" y2="57" stroke="#CDD3DC" stroke-width="1.3"/>
+  <polygon points="367,57 362,54 362,60" fill="#CDD3DC"/>
+
+  <!-- Orchestrator (green, highlighted) -->
+  <rect x="369" y="28" width="126" height="58" rx="6" fill="#EAF4EF" stroke="#157A5E" stroke-width="1.6"/>
+  <text x="432" y="48" text-anchor="middle" font-family="Inter,sans-serif" font-size="10.5" font-weight="700" fill="#157A5E">Orchestrator</text>
+  <text x="432" y="61" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#2A6B54">CLAUDE.md · depth 1</text>
+  <text x="432" y="74" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#2A6B54">reads brief · spawns tasks</text>
+
+  <!-- Fan from orchestrator to skills -->
+  <line x1="432" y1="86" x2="432" y2="102" stroke="#157A5E" stroke-width="1" stroke-dasharray="2,2"/>
+  <line x1="70" y1="102" x2="530" y2="102" stroke="#CDD3DC" stroke-width="1"/>
+  <line x1="70" y1="102" x2="70" y2="110" stroke="#CDD3DC" stroke-width="1"/>
+  <line x1="180" y1="102" x2="180" y2="110" stroke="#CDD3DC" stroke-width="1"/>
+  <line x1="290" y1="102" x2="290" y2="110" stroke="#CDD3DC" stroke-width="1"/>
+  <line x1="400" y1="102" x2="400" y2="110" stroke="#CDD3DC" stroke-width="1"/>
+  <line x1="510" y1="102" x2="510" y2="110" stroke="#CDD3DC" stroke-width="1"/>
+
+  <!-- Skill sub-agents (depth 2, parallel) -->
+  <rect x="24" y="110" width="92" height="24" rx="4" fill="#DDE7F2" stroke="#9FB6D4" stroke-width="1"/>
+  <text x="70" y="125" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#2F5A8B">outside-in BM</text>
+  <rect x="134" y="110" width="92" height="24" rx="4" fill="#DDE7F2" stroke="#9FB6D4" stroke-width="1"/>
+  <text x="180" y="125" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#2F5A8B">P&amp;L teardown</text>
+  <rect x="244" y="110" width="92" height="24" rx="4" fill="#DDE7F2" stroke="#9FB6D4" stroke-width="1"/>
+  <text x="290" y="125" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#2F5A8B">savings analysis</text>
+  <rect x="354" y="110" width="92" height="24" rx="4" fill="#DDE7F2" stroke="#9FB6D4" stroke-width="1"/>
+  <text x="400" y="125" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#2F5A8B">brand / alloc</text>
+  <rect x="464" y="110" width="92" height="24" rx="4" fill="#DDE7F2" stroke="#9FB6D4" stroke-width="1"/>
+  <text x="510" y="125" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#2F5A8B">html-dashboard</text>
+  <text x="290" y="106" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7.5" fill="#76808F">skill sub-agents · depth 2 · running in parallel</text>
+
+  <!-- Converge to runs/ -->
+  <line x1="70" y1="134" x2="70" y2="148" stroke="#CDD3DC" stroke-width="1"/>
+  <line x1="180" y1="134" x2="180" y2="148" stroke="#CDD3DC" stroke-width="1"/>
+  <line x1="290" y1="134" x2="290" y2="148" stroke="#CDD3DC" stroke-width="1"/>
+  <line x1="400" y1="134" x2="400" y2="148" stroke="#CDD3DC" stroke-width="1"/>
+  <line x1="510" y1="134" x2="510" y2="148" stroke="#CDD3DC" stroke-width="1"/>
+  <line x1="70" y1="148" x2="510" y2="148" stroke="#CDD3DC" stroke-width="1"/>
+  <line x1="290" y1="148" x2="290" y2="156" stroke="#CDD3DC" stroke-width="1.4"/>
+  <polygon points="290,156 286,150 294,150" fill="#CDD3DC"/>
+
+  <!-- runs/ filesystem (amber) -->
+  <rect x="196" y="158" width="188" height="34" rx="5" fill="#FBEFD6" stroke="#E6C988" stroke-width="1.2"/>
+  <text x="290" y="172" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="#8A5C0E">runs/&lt;run_id&gt;/</text>
+  <text x="290" y="184" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#B07018">task.yaml · parcel-out.json · artifacts</text>
+
+  <!-- MCPs (purple, right side) -->
+  <rect x="574" y="38" width="148" height="130" rx="7" fill="#F0E8F7" stroke="#C7B8DA" stroke-width="1.2" stroke-dasharray="4,3"/>
+  <text x="648" y="32" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8.5" fill="#6741A5" letter-spacing=".1em" font-weight="600">MCPs</text>
+  <rect x="584" y="50" width="128" height="22" rx="4" fill="#fff" stroke="#C7B8DA" stroke-width="1"/>
+  <text x="648" y="64" text-anchor="middle" font-family="Inter,sans-serif" font-size="9.5" fill="#6741A5">kpi-registry</text>
+  <rect x="584" y="80" width="128" height="22" rx="4" fill="#fff" stroke="#C7B8DA" stroke-width="1"/>
+  <text x="648" y="94" text-anchor="middle" font-family="Inter,sans-serif" font-size="9.5" fill="#6741A5">shared-context</text>
+  <rect x="584" y="110" width="128" height="22" rx="4" fill="#fff" stroke="#C7B8DA" stroke-width="1"/>
+  <text x="648" y="124" text-anchor="middle" font-family="Inter,sans-serif" font-size="9.5" fill="#6741A5">sec-mcp-v2</text>
+  <!-- Arrow skills → MCPs -->
+  <line x1="558" y1="122" x2="572" y2="110" stroke="#C7B8DA" stroke-width="1" stroke-dasharray="3,2"/>
+  <polygon points="572,110 566,112 568,118" fill="#C7B8DA"/>
+
+  <!-- nginx / send_email -->
+  <rect x="196" y="208" width="130" height="28" rx="5" fill="#DDE7F2" stroke="#9FB6D4" stroke-width="1.2"/>
+  <text x="261" y="226" text-anchor="middle" font-family="Inter,sans-serif" font-size="9.5" font-weight="600" fill="#2F5A8B">nginx + send_email.sh</text>
+  <line x1="290" y1="192" x2="290" y2="206" stroke="#CDD3DC" stroke-width="1.3"/>
+  <polygon points="290,206 286,200 294,200" fill="#CDD3DC"/>
+
+  <!-- User in / out labels outside EC2 -->
+  <text x="73" y="18" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#76808F">← email brief in</text>
+  <text x="261" y="250" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#76808F">→ result email + hosted artifacts out</text>
+</svg>
+</div>
+
+<div class="bus">
+  <div class="lbl">The whole inter-agent bus is two files</div>
+  <div class="r1"><code>task.yaml</code> <span class="arr">parent → child</span> scope · suggested skills/MCPs · expected_parcel shape</div>
+  <div class="r1"><code>parcel-out.json</code> <span class="arr">child → parent</span> status · summary · findings · data_gaps · artifact_path</div>
+</div>
+
+<div class="flow">
+  <div class="lanes">
+    <div class="lh orch">Orchestrator<span>depth 1 · persists throughout</span></div>
+    <div class="lh sub">Sub-agent<span>depth 2 · one per task</span></div>
+  </div>
+  <div class="moments">
+    <div class="moment">
+      <div class="side orch-side"><span class="num orch">①</span><span>writes</span></div>
+      <div class="card task"><div class="cname">task.yaml</div><div class="cdx">scope · suggested skills · expected_parcel</div></div>
+      <div class="side sub-side"><span class="num sub">②</span><span>reads</span></div>
+    </div>
+    <div class="moment intermediate">
+      <div class="side orch-side"></div>
+      <div class="note">(sub-agent works, queries MCPs, may spawn depth-3 helpers)</div>
+      <div class="side sub-side"></div>
+    </div>
+    <div class="moment">
+      <div class="side orch-side"><span class="num orch">④</span><span>reads</span></div>
+      <div class="card parcel"><div class="cname">parcel-out.json</div><div class="cdx">status · summary · findings · artifact_path</div></div>
+      <div class="side sub-side"><span class="num sub">③</span><span>writes</span></div>
+    </div>
+  </div>
+  <div class="final"><span class="num orch">⑤</span> orchestrator synthesizes across all parcels → writes <code>case-summary.html</code> + <code>email.json</code> → <code>send_email.sh</code> fires</div>
+</div>
+
+<!-- ── 4. UX DECOMPOSITION ─────────────────────────────────────── -->
+<h2 class="part">UX decomposition</h2>
+<h3 class="h">Autonomy × Visibility × Proactivity — drag the cube, click to inspect</h3>
+
+<div class="stage">
+  <div class="toolbar">
+    <span class="tl">View</span>
+    <button class="vbtn active" data-view="iso">Isometric</button>
+    <button class="vbtn" data-view="av">Autonomy × Visibility</button>
+    <button class="vbtn" data-view="as">Autonomy × Proactivity</button>
+    <button class="vbtn" data-view="sv">Proactivity × Visibility</button>
+    <span class="hint">drag · click to inspect</span>
+  </div>
+  <div class="stage-body">
+    <div class="viewport"><svg id="scene" viewBox="0 0 820 560" preserveAspectRatio="xMidYMid meet"></svg></div>
+    <aside class="panel">
+      <div class="ph">UX features</div>
+      <ul class="slist" id="slist"></ul>
+      <div class="detail" id="detail"><div class="empty">Click a point or entry.</div></div>
+    </aside>
+  </div>
+  <div class="cube-legend">
+    <span class="li"><svg width="12" height="12"><circle cx="6" cy="6" r="4" fill="#3D4757"/></svg>built today</span>
+    <span class="li"><svg width="12" height="12"><circle cx="6" cy="6" r="4" fill="#fff" stroke="#3D4757" stroke-width="1.8"/></svg>not yet built</span>
+    <span class="li"><svg width="14" height="13"><polygon points="7,1 8.5,4.9 12.8,5.1 9.4,7.7 10.5,11.8 7,9.4 3.5,11.8 4.6,7.7 1.2,5.1 5.5,4.9" fill="#6741A5"/></svg>ideal · (1,1,1)</span>
+  </div>
+</div>
+
+<footer>2026-06-13 · cost-diagnostic/04_Containerization/</footer>
+</div>
+
+<script>
+(function(){
+  // ── arch toggle ──
+  document.querySelectorAll('.arch-toggle button').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.arch-toggle button').forEach(function(b){b.classList.remove('active');});
+      document.querySelectorAll('.arch-panel').forEach(function(p){p.classList.remove('show');});
+      btn.classList.add('active');
+      document.getElementById('arch-'+btn.dataset.arch).classList.add('show');
+    });
+  });
+
+  // ── 3D cube ──
+  'use strict';
+  var SURFACES=[
+    {id:'desktop',name:'Desktop app · guided',status:'live',x:0.08,y:1.0,z:0.9,color:'#1A2744',
+      bullets:['<b>Every step visible</b> — runs in Claude Desktop on your laptop','<b>STOP gates</b> at every checkpoint — max proactivity, by script','<b>Autonomy collapses</b> — nothing advances without you']},
+    {id:'fleet',name:'Remote fleet · autonomous',status:'live',x:1.0,y:0.15,z:0.05,color:'#1A2744',
+      bullets:['<b>One email in, full analysis out</b> — ~45 min, fully unattended','<b>Black box mid-run</b> — nothing to watch; failures land silently','<b>The baseline</b> every other feature builds on']},
+    {id:'email',name:'Threaded email follow-up',status:'live',x:0.75,y:0.3,z:0.1,color:'#1A2744',
+      bullets:['<b>Live today</b> — reply to re-run with full prior context','<b>User-initiated only</b> — fleet answers, never asks']},
+    {id:'dash',name:'During-run dashboard',status:'proposed',x:0.9,y:0.6,z:0.05,color:'#1A2744',
+      bullets:['<b>Live status view</b> — agents, spend, elapsed time','<b>Pure pull</b> — open if you want; can\'t touch']},
+    {id:'plan',name:'Plan-card confirmation',status:'proposed',x:0.55,y:0.35,z:0.4,color:'#1A2744',
+      bullets:['<b>Plan posted before work starts</b> — peer set, modules, ETA','<b>The one mid-run steering moment</b>']},
+    {id:'slack',name:'Slack escalation',status:'proposed',x:0.65,y:0.25,z:0.9,color:'#1A2744',
+      bullets:['<b>Fleet decides when to interrupt</b>','<b>Low confidence × high consequence</b> suspends run + pings you']},
+    {id:'ctm',name:'Mini-CTM · voice over run',status:'moonshot',x:0.45,y:0.85,z:0.25,color:'#1A2744',
+      bullets:['<b>Voice assistant over completed run</b> — any browser','<b>Distills reactions into follow-up brief</b>']},
+    {id:'target',name:'Ideal UX · 1,1,1',status:'target',x:1.0,y:1.0,z:1.0,color:'#6741A5',
+      bullets:['<b>Full autonomy</b> — whole analyses unattended','<b>Full visibility</b> — everything inspectable on demand','<b>Full proactivity</b> — reaches out exactly when it matters','<b>No single feature gets here</b> — portfolio together is the path']}
+  ];
+  var HINT={desktop:[-1,-14],fleet:[1,18],email:[1,16],dash:[-1,-12],plan:[-1,16],slack:[1,-12],ctm:[1,-14],target:[1,-16]};
+  var SX=380,SY=330,SZ=300,F=1500,CX=410,CY=292;
+  var yaw=0.65,pitch=-0.24;
+  var VIEW={iso:[0.65,-0.24],av:[0,-0.02],as:[0,-1.45],sv:[1.5708,-0.02]};
+  function proj(x,y,z){
+    var wx=(x-.5)*SX,wy=(y-.5)*SY,wz=(z-.5)*SZ;
+    var cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
+    var x1=cy*wx+sy*wz,z1=-sy*wx+cy*wz,y2=cp*wy-sp*z1,z2=sp*wy+cp*z1,s=F/(F+z2);
+    return{x:CX+x1*s,y:CY-y2*s,d:z2,s:s};
+  }
+  var NS='http://www.w3.org/2000/svg',svg=document.getElementById('scene');
+  function el(t,a,p){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e;}
+  var gF=el('g',{}),gC=el('g',{}),gA=el('g',{}),gD=el('g',{}),gP=el('g',{}),gL=el('g',{});
+  var fl=[];
+  for(var i=0;i<=4;i++){var t=i/4;fl.push({a:[t,0,0],b:[t,0,1],e:el('line',{stroke:'#ECEFF3','stroke-width':1},gF)});fl.push({a:[0,0,t],b:[1,0,t],e:el('line',{stroke:'#ECEFF3','stroke-width':1},gF)});}
+  var CV=[[0,0,0],[1,0,0],[1,1,0],[0,1,0],[0,0,1],[1,0,1],[1,1,1],[0,1,1]];
+  var ED=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+  var ce=ED.map(function(p){return{p:p,e:el('line',{stroke:'#D7DCE4','stroke-width':1},gC)};});
+  var cg1=el('circle',{r:46,fill:'#6741A5','fill-opacity':.05},gC),cg2=el('circle',{r:24,fill:'#6741A5','fill-opacity':.06},gC);
+  var axX=el('line',{stroke:'#76808F','stroke-width':1.4},gA),axY=el('line',{stroke:'#76808F','stroke-width':1.4},gA),axZ=el('line',{stroke:'#76808F','stroke-width':1.4},gA);
+  function mlt(c){return el('text',{'font-family':"'JetBrains Mono',monospace",'font-size':10,'letter-spacing':'1.2',fill:c,'font-weight':'500'},gA);}
+  var lX=mlt('#1A2744'),lY=mlt('#157A5E'),lZ=mlt('#1F7A8C');
+  lX.textContent='AUTONOMY →';lY.textContent='VISIBILITY →';lZ.textContent='PROACTIVITY →';
+  SURFACES.forEach(function(s){
+    s.drop=el('line',{stroke:s.color,'stroke-width':1,'stroke-dasharray':'2 3','stroke-opacity':.45},gD);
+    s.foot=el('circle',{r:1.8,fill:s.color,'fill-opacity':.4},gD);
+    s.halo=el('circle',{r:12,fill:s.color,'fill-opacity':0,style:'transition:fill-opacity .15s'},gP);
+    if(s.status==='target'){s.star=true;s.dot=el('polygon',{points:'0,-10 2.47,-3.4 9.51,-3.09 3.99,1.3 5.88,8.09 0,4.2 -5.88,8.09 -3.99,1.3 -9.51,-3.09 -2.47,-3.4',fill:s.color,'fill-opacity':.92,stroke:'#fff','stroke-width':1,cursor:'pointer'},gP);}
+    else{s.dot=el('circle',{r:6.5,fill:s.status==='live'?s.color:'#fff',stroke:s.color,'stroke-width':s.status==='live'?0:2,cursor:'pointer'},gP);}
+    s.lbl=el('text',{'font-family':'Inter,system-ui,sans-serif','font-size':11,'font-weight':600,fill:'#1A2330',stroke:'#FFFFFF','stroke-width':3.5,'paint-order':'stroke',cursor:'pointer'},gL);
+    s.lbl.textContent=s.name;
+    [s.dot,s.lbl].forEach(function(n){
+      n.addEventListener('pointerenter',function(){hov(s,true);});
+      n.addEventListener('pointerleave',function(){hov(s,false);});
+      n.addEventListener('click',function(ev){ev.stopPropagation();sel(s.id);});
+    });
+  });
+  function sl(e,a,b){e.setAttribute('x1',a.x);e.setAttribute('y1',a.y);e.setAttribute('x2',b.x);e.setAttribute('y2',b.y);}
+  function render(){
+    fl.forEach(function(l){sl(l.e,proj.apply(null,l.a),proj.apply(null,l.b));});
+    ce.forEach(function(o){sl(o.e,proj.apply(null,CV[o.p[0]]),proj.apply(null,CV[o.p[1]]));});
+    var O=proj(0,0,0),pX=proj(1.1,0,0),pY=proj(0,1.12,0),pZ=proj(0,0,1.12);
+    sl(axX,O,pX);sl(axY,O,pY);sl(axZ,O,pZ);
+    lX.setAttribute('x',pX.x+5);lX.setAttribute('y',pX.y+4);
+    lY.setAttribute('x',pY.x+5);lY.setAttribute('y',pY.y+1);
+    lZ.setAttribute('x',pZ.x+5);lZ.setAttribute('y',pZ.y+4);
+    var tg=SURFACES.filter(function(s){return s.id==='target';})[0];
+    if(tg){var g=proj(tg.x,tg.y,tg.z);cg1.setAttribute('cx',g.x);cg1.setAttribute('cy',g.y);cg2.setAttribute('cx',g.x);cg2.setAttribute('cy',g.y);}
+    var ord=SURFACES.map(function(s){
+      var p=proj(s.x,s.y,s.z),f=proj(s.x,0,s.z);s._p=p;
+      sl(s.drop,p,f);s.foot.setAttribute('cx',f.x);s.foot.setAttribute('cy',f.y);
+      s.halo.setAttribute('cx',p.x);s.halo.setAttribute('cy',p.y);
+      if(s.star){s.dot.setAttribute('transform','translate('+p.x+' '+p.y+') scale('+((s._sel?1.25:1)*p.s)+')');}
+      else{s.dot.setAttribute('cx',p.x);s.dot.setAttribute('cy',p.y);s.dot.setAttribute('r',(s._sel?8:6.5)*p.s);}
+      var fade=Math.max(.45,Math.min(1,1.05-(p.d/SZ)*.55));
+      s.dot.setAttribute('opacity',fade);s.drop.setAttribute('opacity',fade);
+      var h=HINT[s.id]||[1,-12];
+      s.lbl.setAttribute('x',p.x+h[0]*11);s.lbl.setAttribute('y',p.y+h[1]*.9);
+      s.lbl.setAttribute('text-anchor',h[0]>0?'start':'end');
+      s.lbl.setAttribute('opacity',s._sel?1:Math.max(.4,fade-.08));
+      s.lbl.setAttribute('font-weight',s._sel?700:600);
+      return{s:s,d:p.d};
+    });
+    ord.sort(function(a,b){return b.d-a.d;}).forEach(function(o){gP.appendChild(o.s.halo);gP.appendChild(o.s.dot);gL.appendChild(o.s.lbl);});
+  }
+  var drag=false,lx=0,ly=0,vy=0,vp=0,mv=0,tw=null;
+  svg.addEventListener('pointerdown',function(e){drag=true;mv=0;tw=null;lx=e.clientX;ly=e.clientY;svg.classList.add('dragging');svg.setPointerCapture(e.pointerId);});
+  svg.addEventListener('pointermove',function(e){if(!drag)return;var dx=e.clientX-lx,dy=e.clientY-ly;mv+=Math.abs(dx)+Math.abs(dy);lx=e.clientX;ly=e.clientY;vy=dx*.0055;vp=dy*.0045;yaw+=vy;pitch=Math.max(-1.5,Math.min(1.5,pitch+vp));clearA();render();});
+  svg.addEventListener('pointerup',function(e){drag=false;svg.classList.remove('dragging');try{svg.releasePointerCapture(e.pointerId);}catch(x){}if(mv<5){var m=svg.getScreenCTM();if(m){var pt=new DOMPoint(e.clientX,e.clientY).matrixTransform(m.inverse());var best=null,bd=400;SURFACES.forEach(function(s){if(!s._p)return;var dx=s._p.x-pt.x,dy=s._p.y-pt.y,d=dx*dx+dy*dy;if(d<bd){bd=d;best=s;}});if(best)sel(best.id);}}});
+  function frame(){
+    if(tw){var t=Math.min(1,(performance.now()-tw.t0)/tw.dur),k=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;yaw=tw.y0+(tw.y1-tw.y0)*k;pitch=tw.p0+(tw.p1-tw.p0)*k;if(t>=1)tw=null;render();}
+    else if(!drag&&(Math.abs(vy)>1e-4||Math.abs(vp)>1e-4)){yaw+=vy;pitch=Math.max(-1.5,Math.min(1.5,pitch+vp));vy*=.94;vp*=.94;render();}
+    requestAnimationFrame(frame);
+  }
+  var btns=document.querySelectorAll('.vbtn');
+  function clearA(){btns.forEach(function(b){b.classList.remove('active');});}
+  btns.forEach(function(b){b.addEventListener('click',function(){clearA();b.classList.add('active');vy=vp=0;var vw=VIEW[b.dataset.view];var ty=vw[0],tp=vw[1];var y1=ty,tau=Math.PI*2;while(y1-yaw>Math.PI)y1-=tau;while(y1-yaw<-Math.PI)y1+=tau;tw={t0:performance.now(),dur:700,y0:yaw,p0:pitch,y1:y1,p1:tp};});});
+  var liEl=document.getElementById('slist'),diEl=document.getElementById('detail');
+  var SL={live:'built',proposed:'proposed',moonshot:'moonshot',target:'north star'};
+  SURFACES.forEach(function(s){
+    var item=document.createElement('li');
+    item.innerHTML='<span class="dot" style="border-color:'+s.color+';background:'+(s.status==='live'?s.color:'#fff')+'"></span><span class="nm">'+s.name+'</span><span class="badge '+s.status+'">'+(SL[s.status]||s.status)+'</span>';
+    item.addEventListener('click',function(){sel(s.id);});liEl.appendChild(item);s._li=item;
+  });
+  function hov(s,on){s.halo.setAttribute('fill-opacity',on||s._sel?.14:0);if(!s._sel)s.lbl.setAttribute('font-weight',on?700:600);}
+  function sel(id){
+    SURFACES.forEach(function(s){s._sel=s.id===id;s._li.classList.toggle('sel',s._sel);s.halo.setAttribute('fill-opacity',s._sel?.14:0);});
+    var s=SURFACES.filter(function(x){return x.id===id;})[0];
+    diEl.innerHTML='<span class="badge '+s.status+'">'+(SL[s.status]||s.status)+'</span><div class="dn">'+s.name+'</div><ul class="db">'+s.bullets.map(function(b){return'<li>'+b+'</li>';}).join('')+'</ul>';
+    render();
+  }
+  render();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
