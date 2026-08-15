@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yellowstone in Four Days — Trip Planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav>
+        <div class="brand">Yellowstone <span>·</span> 4 Days</div>
+        <ul class="nav-links">
+            <li><a href="#explore">Map &amp; Attractions</a></li>
+            <li><a href="#plan">Schedule</a></li>
+            <li><a href="https://haotong-tian.github.io/">Site</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <header class="page-header">
+            <div class="container">
+                <h1>Yellowstone in <em>four days</em></h1>
+                <p class="subtitle">
+                    Every attraction worth the detour, mapped and timed. Hover a card to find it on
+                    the map, then drag it into the schedule below — three full days plus a departure
+                    day. Your plan saves itself in this browser and in the address bar.
+                </p>
+            </div>
+        </header>
+
+        <section id="explore">
+            <div class="container">
+                <div class="section-label">
+                    Map &amp; Attractions
+                    <span class="count" id="filter-count"></span>
+                </div>
+
+                <div class="explore-grid">
+                    <!-- ── Map ─────────────────────────────── -->
+                    <div class="map-col">
+                        <div class="map-wrap">
+                            <div id="map"></div>
+                            <div class="map-foot">
+                                <div class="legend">
+                                    <span><i style="background:#1D6A3A"></i> Unscheduled</span>
+                                    <span><i style="background:var(--day1)"></i> Day 1</span>
+                                    <span><i style="background:var(--day2)"></i> Day 2</span>
+                                    <span><i style="background:var(--day3)"></i> Day 3</span>
+                                    <span><i style="background:var(--day4)"></i> Day 4</span>
+                                </div>
+                                <div>Dashed lines trace each day's route</div>
+                            </div>
+                            <div class="map-stats" id="map-stats"></div>
+                        </div>
+                    </div>
+
+                    <!-- ── Cards ───────────────────────────── -->
+                    <div class="cards-col">
+                        <div class="toolbar">
+                            <div class="search-row">
+                                <input type="search" id="search" placeholder="Search attractions — geyser, falls, wildlife…" autocomplete="off">
+                            </div>
+                            <div class="chips" id="region-chips"></div>
+                        </div>
+                        <div class="cards" id="cards"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="plan">
+            <div class="container">
+                <div class="section-label">
+                    The Schedule
+                    <span class="count" id="plan-count"></span>
+                </div>
+
+                <div class="board-actions">
+                    <button class="btn primary" id="btn-share">Copy share link</button>
+                    <button class="btn" id="btn-export">Download backup</button>
+                    <button class="btn" id="btn-import">Restore backup</button>
+                    <button class="btn" id="btn-copy">Copy as text</button>
+                    <button class="btn" id="btn-print">Print / PDF</button>
+                    <button class="btn danger" id="btn-clear">Clear plan</button>
+                    <input type="file" id="file-import" accept="application/json,.json" hidden>
+                </div>
+
+                <div class="board-scroll">
+                    <table class="board" id="board"></table>
+                </div>
+
+                <p class="storage-note">
+                    Your plan autosaves in this browser <em>and</em> writes itself into the address
+                    bar — so bookmark the page, or hit <b>Copy share link</b> and paste it to the
+                    group chat. That link restores the whole schedule on any device, and nothing is
+                    ever uploaded anywhere. For belt-and-braces, <b>Download backup</b> saves a small
+                    <code>.json</code> file you can restore later.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>
+                Times are typical on-site durations and exclude driving — allow 45–90 minutes
+                between regions on the Grand Loop. Verify closures at
+                <a href="https://www.nps.gov/yell/planyourvisit/parkroads.htm" target="_blank" rel="noopener">nps.gov/yell</a>
+                before you go.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Drag helper: mini schedule grid that rises during a drag -->
+    <div class="quick-drop" id="quick-drop">
+        <div class="qd-title"><span>Drop into</span><b id="qd-label"></b></div>
+        <div class="qd-grid" id="qd-grid"></div>
+    </div>
+
+    <script src="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.js"></script>
+    <script src="attractions.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
