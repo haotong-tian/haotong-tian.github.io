@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "saved": "2026-08-16T05:23:19.125Z",
+  "plan": {
+    "d1-morning": [
+      "slc",
+      "west-yellowstone"
+    ],
+    "d1-afternoon": [
+      "fairy-falls",
+      "old-faithful",
+      "lone-star",
+      "grand-prismatic"
+    ],
+    "d1-evening": [
+      "west-yellowstone"
+    ],
+    "d2-morning": [
+      "west-yellowstone",
+      "gibbon-falls",
+      "virginia-cascade"
+    ],
+    "d2-afternoon": [
+      "hayden-valley",
+      "elephant-back",
+      "west-thumb"
+    ],
+    "d2-evening": [
+      "firehole-canyon",
+      "mammoth-terraces"
+    ],
+    "d3-morning": [
+      "undine-falls",
+      "petrified-tree"
+    ],
+    "d3-afternoon": [
+      "mount-washburn",
+      "inspiration-point",
+      "norris"
+    ],
+    "d3-evening": [
+      "west-yellowstone"
+    ],
+    "d4-morning": [
+      "west-yellowstone",
+      "colter-bay"
+    ],
+    "d4-afternoon": [
+      "string-lake"
+    ],
+    "d4-evening": [
+      "slc"
+    ]
+  }
+}

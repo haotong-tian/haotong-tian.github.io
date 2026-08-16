@@ -783,6 +783,27 @@ document.getElementById('btn-copy').addEventListener('click', async () => {
 
 window.addEventListener('resize', () => { if (mapReady) map.resize(); });
 
+/* A share link clicked while the page is already open — or one of the saved
+   routes below. savePlan() uses replaceState, which never fires hashchange,
+   so this only ever reacts to a real navigation. */
+window.addEventListener('hashchange', () => {
+    const m = location.hash.match(/[#&]plan=([^&]*)/);
+    if (!m) return;
+    let incoming;
+    try { incoming = adopt(decodePlan(decodeURIComponent(m[1]))); } catch (e) { return; }
+    if (encodePlan(incoming) === encodePlan(plan)) return;
+
+    const busy = Object.values(plan).some(a => a.length);
+    if (busy && !confirm('Replace your current schedule with this saved route?')) {
+        savePlan();                     // restore the URL to what is actually on screen
+        return;
+    }
+    plan = incoming;
+    savePlan();
+    renderAll();
+    document.getElementById('plan').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
 /* ── Boot ──────────────────────────────────────────────────── */
 
 function renderAll() {

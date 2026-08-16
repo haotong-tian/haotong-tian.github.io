@@ -437,14 +437,21 @@ body.dragging, body.dragging * { cursor: grabbing !important; user-select: none;
     content: ''; position: absolute; left: 0; top: 1.05rem;
     width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
 }
-.ref-links a {
+.ref-links > li > a {
     font-family: var(--serif); font-size: .95rem; font-weight: 600;
     border-bottom: 1px solid transparent; transition: border-color .15s, color .15s;
 }
-.ref-links a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+.ref-links > li > a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 .ref-meta {
     font-family: var(--mono); font-size: .64rem; letter-spacing: .03em;
     color: var(--text-muted);
+}
+.ref-meta a { color: var(--text-muted); border-bottom: 1px solid var(--rule); }
+.ref-meta a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+.ref-note {
+    flex-basis: 100%; font-size: .74rem; font-weight: 300; line-height: 1.5;
+    color: var(--text-muted); margin-top: .1rem;
+    padding-left: .6rem; border-left: 2px solid var(--rule);
 }
 
 /* ── Footer ────────────────────────────── */
