@@ -12,13 +12,13 @@ const DAY_META = {
     1: { label: 'Day 1', sub: 'Full day' },
     2: { label: 'Day 2', sub: 'Full day' },
     3: { label: 'Day 3', sub: 'Full day' },
-    4: { label: 'Day 4', sub: 'Until departure' },
+    4: { label: 'Day 4', sub: 'Full day' },
 };
 const STORE_KEY = 'yellowstone-plan-v1';
-const TOTAL_SLOTS = DAYS.length * SLOTS.length - 1;   // day 4 evening is the flight home
+const TOTAL_SLOTS = DAYS.length * SLOTS.length;
 
 const cellKey = (day, slot) => `d${day}-${slot}`;
-const isDisabled = (day, slot) => day === 4 && slot === 'evening';
+const isDisabled = () => false;   // every slot is open; kept so a slot can be closed off later
 
 const BY_ID = Object.fromEntries(ATTRACTIONS.map(a => [a.id, a]));
 const REGION_LABEL = Object.fromEntries(REGIONS.map(r => [r.key, r.label]));
@@ -95,27 +95,40 @@ function savePlan() {
                                        : location.pathname + location.search);
 }
 
-function cellOf(id) {
-    for (const k of Object.keys(plan)) if (plan[k].includes(id)) return k;
-    return null;
+/* An attraction can sit in several slots at once — you fly out of the same
+   airport you flew into, and a valley is worth two passes at different light.
+   So a scheduled item is a *placement* ({cell, index}), not the attraction. */
+function placementsOf(id) {
+    const out = [];
+    Object.keys(plan).forEach(k => plan[k].forEach((x, i) => { if (x === id) out.push({ key: k, index: i }); }));
+    return out;
 }
-const dayOf = id => { const k = cellOf(id); return k ? Number(k[1]) : 0; };
+const dayOfKey = key => Number(key[1]);
+const daysOf = id => [...new Set(placementsOf(id).map(p => dayOfKey(p.key)))].sort();
 
-function assign(id, key, index) {
-    const from = cellOf(id);
-    if (from) plan[from] = plan[from].filter(x => x !== id);
-    const arr = plan[key];
-    if (typeof index === 'number' && index >= 0 && index <= arr.length) arr.splice(index, 0, id);
-    else arr.push(id);
-    savePlan();
-    renderAll();
+function addTo(id, key) {
+    if (!plan[key] || !BY_ID[id]) return;
+    if (plan[key].includes(id)) return;        // twice in one slot is just noise
+    plan[key].push(id);
+    savePlan(); renderAll();
 }
-function unassign(id) {
-    const from = cellOf(id);
-    if (!from) return;
-    plan[from] = plan[from].filter(x => x !== id);
-    savePlan();
-    renderAll();
+
+function moveTo(fromKey, fromIndex, toKey) {
+    const arr = plan[fromKey];
+    if (!arr || fromIndex < 0 || fromIndex >= arr.length || !plan[toKey]) return;
+    const [id] = arr.splice(fromIndex, 1);
+    if (fromKey !== toKey && plan[toKey].includes(id)) {
+        arr.splice(fromIndex, 0, id);          // already in the target — put it back
+        return;
+    }
+    plan[toKey].push(id);
+    savePlan(); renderAll();
+}
+
+function removeAt(key, index) {
+    if (!plan[key] || index < 0 || index >= plan[key].length) return;
+    plan[key].splice(index, 1);
+    savePlan(); renderAll();
 }
 
 /* ── Filtering ─────────────────────────────────────────────── */
@@ -156,12 +169,19 @@ let hoverFid = null;
 function spotsGeoJSON() {
     return {
         type: 'FeatureCollection',
-        features: ATTRACTIONS.map((a, i) => ({
-            type: 'Feature',
-            id: i,
-            geometry: { type: 'Point', coordinates: [a.lng, a.lat] },
-            properties: { id: a.id, name: a.name, day: dayOf(a.id), time: a.time },
-        })),
+        features: ATTRACTIONS.map((a, i) => {
+            const ds = daysOf(a.id);
+            return {
+                type: 'Feature',
+                id: i,
+                geometry: { type: 'Point', coordinates: [a.lng, a.lat] },
+                properties: {
+                    id: a.id, name: a.name, time: a.time,
+                    day: ds[0] || 0,            // colour follows the first day it appears
+                    days: ds.join('/'),         // label reads "D1/4" when it repeats
+                },
+            };
+        }),
     };
 }
 
@@ -226,7 +246,7 @@ map.on('load', () => {
         id: 'spot-labels', type: 'symbol', source: 'spots',
         filter: ['>', ['get', 'day'], 0],
         layout: {
-            'text-field': ['concat', 'D', ['to-string', ['get', 'day']]],
+            'text-field': ['concat', 'D', ['get', 'days']],
             'text-font': ['Noto Sans Bold'],
             'text-size': 9.5,
             'text-offset': [0, 1.35],
@@ -310,8 +330,10 @@ function setHover(id, fromMap) {
         hoverFid = idx;
     }
 
-    const d = dayOf(a.id);
-    const where = d ? `Day ${d} · ${slotLabelOf(a.id)}` : REGION_LABEL[a.region];
+    const ps = placementsOf(a.id);
+    const where = ps.length
+        ? ps.map(p => `Day ${dayOfKey(p.key)} · ${slotLabelOfKey(p.key)}`).join(' + ')
+        : REGION_LABEL[a.region];
     popup.setLngLat([a.lng, a.lat])
         .setHTML(`<div class="pop-name">${esc(a.name)}</div>
                   <div class="pop-meta">${esc(a.time)} &nbsp;·&nbsp; ${esc(where)}</div>`)
@@ -322,10 +344,8 @@ function setHover(id, fromMap) {
     }
 }
 
-function slotLabelOf(id) {
-    const k = cellOf(id);
-    if (!k) return '';
-    const s = SLOTS.find(s => k.endsWith(s.key));
+function slotLabelOfKey(key) {
+    const s = SLOTS.find(s => key.endsWith(s.key));
     return s ? s.label : '';
 }
 
@@ -366,15 +386,19 @@ function renderCards() {
             lastRegion = a.region;
             html += `<div class="region-head">${esc(REGION_LABEL[a.region])}</div>`;
         }
-        const d = dayOf(a.id);
+        const ps = placementsOf(a.id);
         const closed = a.status === 'closed';
+        const badges = ps.map(p => {
+            const d = dayOfKey(p.key);
+            return `<span class="day-badge d${d}">D${d} · ${esc(slotLabelOfKey(p.key).slice(0, 3).toUpperCase())}</span>`;
+        }).join('');
         html += `
-        <article class="card${d ? ' scheduled' : ''}${pinnedId === a.id ? ' pinned' : ''}${closed ? ' is-closed' : ''}"
+        <article class="card${ps.length ? ' scheduled' : ''}${pinnedId === a.id ? ' pinned' : ''}${closed ? ' is-closed' : ''}"
                  data-id="${a.id}" data-drag-id="${a.id}">
-            <button class="add-btn" data-add="${a.id}" title="Add to schedule">${d ? 'Move' : '+ Plan'}</button>
+            <button class="add-btn" data-add="${a.id}" title="Add to schedule">+ Plan</button>
             <div class="card-top">
                 <h3>${esc(a.name)}</h3>
-                ${d ? `<span class="day-badge d${d}">D${d} · ${esc(slotLabelOf(a.id).slice(0, 3).toUpperCase())}</span>` : ''}
+                ${badges ? `<span class="day-badges">${badges}</span>` : ''}
             </div>
             <p class="what">${esc(a.what)}</p>
             <div class="meta">
@@ -450,13 +474,16 @@ function renderBoard() {
             if (!items.length) {
                 body += `<div class="cell-drop-hint">Drop here</div>`;
             } else {
-                items.forEach(id => {
+                items.forEach((id, i) => {
                     const a = BY_ID[id];
                     if (!a) return;
+                    const repeat = placementsOf(id).length > 1;
+                    // data-cell is reserved for drop targets, so a chip names its source as data-src
                     body += `<div class="chip-item" data-drag-id="${a.id}" data-id="${a.id}"
+                                  data-src="${key}" data-idx="${i}"
                                   style="border-left-color:${DAY_COLOR[d]}">
-                        <span class="ci-name">${esc(a.name)}<span class="ci-time">${esc(a.time)}</span></span>
-                        <button class="ci-x" data-remove="${a.id}" title="Remove">&times;</button>
+                        <span class="ci-name">${esc(a.name)}${repeat ? '<span class="ci-repeat" title="Also scheduled elsewhere">&#8635;</span>' : ''}<span class="ci-time">${esc(a.time)}</span></span>
+                        <button class="ci-x" data-src="${key}" data-idx="${i}" title="Remove">&times;</button>
                     </div>`;
                 });
                 body += `<div class="cell-hours">${fmtH(cellHours(key))}</div>`;
@@ -469,9 +496,9 @@ function renderBoard() {
 
     boardEl.innerHTML = head + body;
 
-    boardEl.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', e => {
+    boardEl.querySelectorAll('.ci-x').forEach(b => b.addEventListener('click', e => {
         e.stopPropagation();
-        unassign(b.dataset.remove);
+        removeAt(b.dataset.src, Number(b.dataset.idx));
     }));
     boardEl.querySelectorAll('.chip-item').forEach(c => {
         const id = c.dataset.id;
@@ -520,7 +547,7 @@ function renderQuickDrop() {
     qdGrid.innerHTML = html;
     qdGrid.querySelectorAll('[data-cell]').forEach(c => c.addEventListener('click', () => {
         if (!pickId) return;
-        assign(pickId, c.dataset.cell);
+        addTo(pickId, c.dataset.cell);
         closePicker();
     }));
 }
@@ -566,6 +593,8 @@ document.addEventListener('pointerdown', e => {
 
     drag = {
         id: handle.dataset.dragId,
+        // a chip carries its origin, so it moves; a card has none, so it adds a new placement
+        from: handle.dataset.src ? { key: handle.dataset.src, index: Number(handle.dataset.idx) } : null,
         startX: e.clientX, startY: e.clientY,
         pointerId: e.pointerId,
         ghost: null, target: null,
@@ -642,9 +671,10 @@ function onDragEnd(e) {
         const cell = el ? el.closest('[data-cell]') : null;
 
         if (cell) {
-            assign(drag.id, cell.dataset.cell);
-        } else if (el && el.closest('.cards-col') && cellOf(drag.id)) {
-            unassign(drag.id);            // dragged back out to the library
+            if (drag.from) moveTo(drag.from.key, drag.from.index, cell.dataset.cell);
+            else addTo(drag.id, cell.dataset.cell);
+        } else if (drag.from && el && el.closest('.cards-col')) {
+            removeAt(drag.from.key, drag.from.index);   // dragged back out to the library
         }
         if (drag.target) drag.target.classList.remove('over');
 
